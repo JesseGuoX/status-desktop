@@ -45,12 +45,6 @@ ModalPopup {
 
         FleetRadioSelector {
             advancedStore: popup.advancedStore
-            fleetName: Constants.eth_test
-            buttonGroup: fleetSettings
-        }
-
-        FleetRadioSelector {
-            advancedStore: popup.advancedStore
             fleetName: Constants.waku_prod
             buttonGroup: fleetSettings
         }
