@@ -36,7 +36,7 @@ QtObject:
     }.toTable
 
   proc countChanged(self: TokenPermissionsModel) {.signal.}
-  proc getCount(self: TokenPermissionsModel): int {.slot.} =
+  proc getCount*(self: TokenPermissionsModel): int {.slot.} =
     self.items.len
   QtProperty[int] count:
     read = getCount
@@ -107,7 +107,6 @@ QtObject:
     if(idx == -1):
       return
 
-    self.items[idx].id = permissionId
     self.items[idx].`type` = item.`type`
     self.items[idx].tokenCriteria = item.tokenCriteria
     self.items[idx].isPrivate = item.isPrivate

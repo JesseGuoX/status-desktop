@@ -25,6 +25,8 @@ import ../../../../app_service/service/community_tokens/service as community_tok
 import ../../../../app_service/service/chat/dto/chat
 import ./minting/module as minting_module
 
+include ../../../../app_service/common/json_utils
+
 export io_interface
 
 type
