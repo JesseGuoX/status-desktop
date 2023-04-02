@@ -3,6 +3,7 @@ from scripts.global_names import *
 # Main:
 mainWindow_Welcome_to_Status_StyledText = {"container": statusDesktop_mainWindow, "text": "Welcome to Status", "type": "StyledText", "unnamed": 1, "visible": True}
 mainWindow_startupOnboarding_OnboardingLayout = {"container": statusDesktop_mainWindow, "objectName": "startupOnboardingLayout", "type": "OnboardingLayout", "visible": True}
+
 onboarding_newPsw_Input = {"container": statusDesktop_mainWindow, "objectName": "passwordViewNewPassword", "type": "StatusPasswordInput", "visible": True}
 onboarding_confirmPsw_Input = {"container": statusDesktop_mainWindow, "objectName": "passwordViewNewPasswordConfirm", "type": "StatusPasswordInput", "visible": True}
 onboarding_create_password_button = {"container": statusDesktop_mainWindow, "objectName": "onboardingCreatePasswordButton", "type": "StatusButton"}
