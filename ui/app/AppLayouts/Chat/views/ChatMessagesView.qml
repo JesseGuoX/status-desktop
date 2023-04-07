@@ -1,4 +1,5 @@
-import QtQuick 2.13
+import QtQuick 2.15
+import QtQml 2.15
 import QtQuick.Controls 2.13
 import QtQuick.Layouts 1.13
 import QtQuick.Dialogs 1.3
@@ -181,6 +182,18 @@ Item {
         spacing: 0
         verticalLayoutDirection: ListView.BottomToTop
         cacheBuffer: height * 2 // cache 2 screens worth of items
+
+        Binding on flickDeceleration {
+            when: localAppSettings.scrollDeceleration > 0
+            value: localAppSettings.scrollDeceleration
+            restoreMode: Binding.RestoreBindingOrValue
+        }
+
+        Binding on maximumFlickVelocity {
+            when: localAppSettings.scrollVelocity > 0
+            value: localAppSettings.scrollVelocity
+            restoreMode: Binding.RestoreBindingOrValue
+        }
 
         model: messageStore.messagesModel
 

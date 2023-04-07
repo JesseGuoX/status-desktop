@@ -168,8 +168,85 @@ SettingsContentBase {
         }
 
         Rectangle {
-            id: modeSeparator
+            id: scrollSeparator
             anchors.top: zoomSlider.bottom
+            anchors.topMargin: Style.current.padding * 3
+            anchors.left: parent.left
+            anchors.right: parent.right
+            height: 1
+            color: Style.current.separator
+        }
+
+        StatusSectionHeadline {
+            id: labelScrolling
+            anchors.top: scrollSeparator.bottom
+            anchors.topMargin: Style.current.bigPadding * 2
+            anchors.left: parent.left
+            anchors.right: parent.right
+            text: qsTr("Scrolling")
+        }
+
+        StatusBaseText {
+            id: labelScrollVelocity
+
+            anchors.top: labelScrolling.bottom
+            anchors.topMargin: Style.current.padding
+            anchors.left: parent.left
+            color: Style.current.secondaryText
+            font.pixelSize: 13
+            text: qsTr("Velocity")
+        }
+
+        StatusQ.StatusSlider {
+            id: scrollVelocitySlider
+            readonly property int initialValue: localAppSettings.scrollVelocity
+            anchors.top: labelScrollVelocity.bottom
+            anchors.topMargin: Style.current.padding
+            width: parent.width
+            from: 0
+            to: 1000
+            stepSize: 1
+            readonly property int scaleFactor: 10
+            value: initialValue / scaleFactor
+            onValueChanged: {
+                if (value !== initialValue) {
+                    localAppSettings.scrollVelocity = value * scaleFactor
+                }
+            }
+        }
+
+        StatusBaseText {
+            id: labelScrollDeceleration
+
+            anchors.top: scrollVelocitySlider.bottom
+            anchors.topMargin: Style.current.bigPadding
+            anchors.left: parent.left
+            color: Style.current.secondaryText
+            font.pixelSize: 13
+            text: qsTr("Deceleration")
+        }
+
+        StatusQ.StatusSlider {
+            id: scrollDecelerationSlider
+            readonly property int initialValue: localAppSettings.scrollDeceleration
+            anchors.top: labelScrollDeceleration.bottom
+            anchors.topMargin: Style.current.padding
+            width: parent.width
+            from: 0
+            to: 1000
+            stepSize: 1
+            readonly property int scaleFactor: 10
+            value: initialValue / scaleFactor
+            onValueChanged: {
+                if (value !== initialValue) {
+                    localAppSettings.scrollDeceleration = value * scaleFactor
+                }
+            }
+        }
+
+        Rectangle {
+            id: modeSeparator
+            anchors.top: scrollDecelerationSlider.bottom
             anchors.topMargin: Style.current.padding*3
             anchors.left: parent.left
             anchors.right: parent.right
