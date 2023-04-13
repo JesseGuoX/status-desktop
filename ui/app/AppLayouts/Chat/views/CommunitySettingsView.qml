@@ -301,7 +301,6 @@ StatusSectionLayout {
                     rootStore.communityTokensStore
 
                 tokensModel: root.community.communityTokens
-                holdersModel: communityTokensStore.holdersModel
                 layer1Networks: communityTokensStore.layer1Networks
                 layer2Networks: communityTokensStore.layer2Networks
                 testNetworks: communityTokensStore.testNetworks
@@ -327,7 +326,7 @@ StatusSectionLayout {
                 }
                 onSignSelfDestructTransactionOpened: communityTokensStore.computeSelfDestructFee(chainId)
                 onRemoteSelfDestructCollectibles: {
-                    communityTokensStore.remoteSelfDestructCollectibles(holdersModel,
+                    communityTokensStore.remoteSelfDestructCollectibles(tokenOwnersModel,
                                                                         chainId,
                                                                         accountName,
                                                                         accountAddress)
