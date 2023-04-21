@@ -5,6 +5,9 @@ import ../app_service/service/eth/dto/transaction
 import ./core as core
 import ../app_service/common/utils
 
+proc getTransactionByHash*(chainId: int, hash: string): RpcResponse[JsonNode] {.raises: [Exception].} =
+  core.callPrivateRPCWithChainId("eth_getTransactionByHash", chainId, %* [hash])
+
 proc checkRecentHistory*(chainIds: seq[int], addresses: seq[string]) {.raises: [Exception].} =
   let payload = %* [chainIds, addresses]
   discard core.callPrivateRPC("wallet_checkRecentHistoryForChainIDs", payload)

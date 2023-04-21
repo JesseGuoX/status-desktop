@@ -122,4 +122,4 @@ proc findTokenSymbolByAddress*(self: Controller, address: string): string =
   return self.walletAccountService.findTokenSymbolByAddress(address)
 
 proc getMultiTransactions*(self: Controller, transactionIDs: seq[int]): seq[MultiTransactionDto] =
-  return self.transactionService.getMultiTransactions(transactionIDs)
+  return transaction_service.getMultiTransactions(transactionIDs)

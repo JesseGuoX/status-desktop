@@ -26,6 +26,7 @@ QtObject {
     property bool hideSignPhraseModal: accountSensitiveSettings.hideSignPhraseModal
 
     property var totalCurrencyBalance: walletSection.totalCurrencyBalance
+    property var activityController: walletSection.activityController
     property string signingPhrase: walletSection.signingPhrase
     property string mnemonicBackedUp: walletSection.isMnemonicBackedUp
 

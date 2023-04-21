@@ -15,6 +15,8 @@ import ./add_account/module as add_account_module
 import ./overview/module as overview_module
 import ./send/module as send_module
 
+import ./activity/controller as activityc
+
 import ../../../global/global_singleton
 import ../../../core/eventemitter
 import ../../../../app_service/service/keycard/service as keycard_service
@@ -33,7 +35,6 @@ import ../../../../app_service/service/network_connection/service as network_con
 logScope:
   topics = "wallet-section-module"
 
-import io_interface
 export io_interface
 
 type
@@ -41,7 +42,7 @@ type
     delegate: delegate_interface.AccessInterface
     events: EventEmitter
     moduleLoaded: bool
-    controller: Controller
+    controller: controller.Controller
     view: View
 
     accountsModule: accounts_module.AccessInterface
@@ -57,6 +58,8 @@ type
     keycardService: keycard_service.Service
     accountsService: accounts_service.Service
     walletAccountService: wallet_account_service.Service
+
+    activityController: activityc.Controller
 
 proc newModule*(
   delegate: delegate_interface.AccessInterface,
@@ -82,7 +85,6 @@ proc newModule*(
   result.walletAccountService = walletAccountService
   result.moduleLoaded = false
   result.controller = newController(result, settingsService, walletAccountService, currencyService)
-  result.view = newView(result)
 
   result.accountsModule = accounts_module.newModule(result, events, walletAccountService, networkService, currencyService)
   result.allTokensModule = all_tokens_module.newModule(result, events, tokenService, walletAccountService)
@@ -93,6 +95,10 @@ proc newModule*(
   result.savedAddressesModule = saved_addresses_module.newModule(result, events, savedAddressService)
   result.buySellCryptoModule = buy_sell_crypto_module.newModule(result, events, transactionService)
   result.overviewModule = overview_module.newModule(result, events, walletAccountService, networkService, currencyService)
+
+  result.activityController = activityc.newController(result.transactionsModule)
+  result.view = newView(result, result.activityController)
+
 
 method delete*(self: Module) =
   self.accountsModule.delete

@@ -12,3 +12,4 @@ AssetsView 1.0 AssetsView.qml
 HistoryView 1.0 HistoryView.qml
 DeviceSyncingView 1.0 DeviceSyncingView.qml
 AmountToSend 1.0 AmountToSend.qml
+ActivityView 1.0 ActivityView.qml

@@ -158,16 +158,6 @@ QtObject:
       error "error: ", errDescription
       return
 
-  proc getMultiTransactions*(self: Service, transactionIDs: seq[int]): seq[MultiTransactionDto] =
-    try:
-      let response = transactions.getMultiTransactions(transactionIDs).result
-
-      return response.getElems().map(x => x.toMultiTransactionDto())
-    except Exception as e:
-      let errDescription = e.msg
-      error "error: ", errDescription
-      return
-
   proc getAllTransactions*(self: Service, address: string): seq[TransactionDto] =
     if not self.allTransactions.hasKey(address):
       return @[]
@@ -544,3 +534,13 @@ QtObject:
     except Exception as e:
       error "Error getting latest block number", message = e.msg
       return ""
+
+proc getMultiTransactions*(transactionIDs: seq[int]): seq[MultiTransactionDto] =
+  try:
+    let response = transactions.getMultiTransactions(transactionIDs).result
+
+    return response.getElems().map(x => x.toMultiTransactionDto())
+  except Exception as e:
+    let errDescription = e.msg
+    error "error: ", errDescription
+    return

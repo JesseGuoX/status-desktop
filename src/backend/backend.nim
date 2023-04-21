@@ -96,6 +96,14 @@ rpc(getTokensBalancesForChainIDs, "wallet"):
 rpc(getPendingTransactionsByChainIDs, "wallet"):
   chainIds: seq[int]
 
+type
+  TransactionIdentity* = ref object
+    hash* {.serializedFieldName("hash").}: string
+    chainId* {.serializedFieldName("chainId").}: int
+
+rpc(getPendingTransactionsForIdentities, "wallet"):
+  identities = seq[TransactionIdentity]
+
 rpc(getWalletToken, "wallet"):
   accounts: seq[string]
 
