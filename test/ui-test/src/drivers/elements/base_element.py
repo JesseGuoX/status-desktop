@@ -14,7 +14,6 @@ class BaseElement:
     def object(self):
         return squish.waitForObject(self.object_name)
 
-    
     @property
     def existent(self):
         return squish.waitForObjectExists(self.object_name)
