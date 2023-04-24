@@ -276,6 +276,7 @@ StatusSectionLayout {
                     readonly property string name: _activeSection.name
                     readonly property string image: _activeSection.image
                     readonly property string color: _activeSection.color
+                    readonly property bool isOwner: _activeSection.amISectionAdmin
                 }
 
                 onCreatePermissionRequested:

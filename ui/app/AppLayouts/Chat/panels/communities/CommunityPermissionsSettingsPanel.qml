@@ -19,7 +19,7 @@ SettingsPageLayout {
     // name, image, color properties expected
     required property var communityDetails
 
-    property bool isOwner: false
+    property bool isOwner: communityDetails.isOwner
 
     property int viewWidth: 560 // by design
 

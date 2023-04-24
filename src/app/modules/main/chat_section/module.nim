@@ -283,17 +283,15 @@ proc rebuildCommunityTokenPermissionsModel(self: Module) =
   var allTokenRequirementsMet = false
 
   for id, tokenPermission in community.tokenPermissions:
-    # TODO: for startes we only deal with "become member" permissions
-    if tokenPermission.`type` == TokenPermissionType.BecomeMember:
-      let tokenPermissionItem = self.buildTokenPermissionItem(tokenPermission)
+    let tokenPermissionItem = self.buildTokenPermissionItem(tokenPermission)
 
-      # multiple permissions of the same type act as logical OR
-      # so if at least one of them is fulfilled we can mark the view
-      # as all lights green
-      if tokenPermissionItem.tokenCriteriaMet:
-          allTokenRequirementsMet = true
+    # multiple permissions of the same type act as logical OR
+    # so if at least one of them is fulfilled we can mark the view
+    # as all lights green
+    if tokenPermissionItem.tokenCriteriaMet:
+        allTokenRequirementsMet = true
 
-      tokenPermissionsItems.add(tokenPermissionItem)
+    tokenPermissionsItems.add(tokenPermissionItem)
 
   self.view.tokenPermissionsModel().setItems(tokenPermissionsItems)
   self.view.setAllTokenRequirementsMet(allTokenRequirementsMet)
@@ -773,36 +771,35 @@ method onCommunityTokenPermissionDeleted*(self: Module, communityId: string, per
   singletonInstance.globalEvents.showCommunityTokenPermissionDeletedNotification(communityId, "Community permission deleted", "A token permission has been removed")
 
 method onCommunityTokenPermissionCreated*(self: Module, communityId: string, tokenPermission: CommunityTokenPermissionDto) =
-  if tokenPermission.`type` == TokenPermissionType.BecomeMember:
-    let tokenPermissionItem = self.buildTokenPermissionItem(tokenPermission)
+  let tokenPermissionItem = self.buildTokenPermissionItem(tokenPermission)
+  if tokenPermissionItem.tokenCriteriaMet:
+    self.view.setAllTokenRequirementsMet(true)
+  self.view.tokenPermissionsModel.addItem(tokenPermissionItem)
+  self.view.setRequiresTokenPermissionToJoin(true)
 
-    if tokenPermissionItem.tokenCriteriaMet:
-      self.view.setAllTokenRequirementsMet(true)
-
-    self.view.tokenPermissionsModel.addItem(tokenPermissionItem)
-    self.view.setRequiresTokenPermissionToJoin(true)
   singletonInstance.globalEvents.showCommunityTokenPermissionCreatedNotification(communityId, "Community permission created", "A token permission has been added")
 
 method onCommunityTokenPermissionUpdated*(self: Module, communityId: string, tokenPermission: CommunityTokenPermissionDto) =
-  if tokenPermission.`type` == TokenPermissionType.BecomeMember:
-    let tokenPermissionItem = self.buildTokenPermissionItem(tokenPermission)
-    self.view.tokenPermissionsModel.updateItem(tokenPermission.id, tokenPermissionItem)
-    if tokenPermissionItem.tokenCriteriaMet:
-      self.view.setAllTokenRequirementsMet(true)
-      return
+  let tokenPermissionItem = self.buildTokenPermissionItem(tokenPermission)
+  self.view.tokenPermissionsModel.updateItem(tokenPermission.id, tokenPermissionItem)
+  if tokenPermissionItem.tokenCriteriaMet:
+    self.view.setAllTokenRequirementsMet(true)
+    return
 
-    # we now need to check whether any other permission criteria where met.
-    let community = self.controller.getMyCommunity()
-    for id, permission in community.tokenPermissions:
-      if id != tokenPermission.id:
-        for tc in permission.tokenCriteria:
-          let balance = self.controller.allAccountsTokenBalance(tc.symbol)
-          let amount = tc.amount.parseFloat
-          let tokenCriteriaMet = balance >= amount
-          if tokenCriteriaMet:
-            return
+  # we now need to check whether any other permission criteria where met.
+  let community = self.controller.getMyCommunity()
+  for id, permission in community.tokenPermissions:
+    if id != tokenPermission.id:
+      for tc in permission.tokenCriteria:
+        let balance = self.controller.allAccountsTokenBalance(tc.symbol)
+        let amount = tc.amount.parseFloat
+        let tokenCriteriaMet = balance >= amount
+        if tokenCriteriaMet:
+          self.view.setAllTokenRequirementsMet(true)
+          return
+        
+  self.view.setAllTokenRequirementsMet(false)
 
-    self.view.setAllTokenRequirementsMet(false)
   singletonInstance.globalEvents.showCommunityTokenPermissionUpdatedNotification(communityId, "Community permission updated", "A token permission has been updated")
 
 method onCommunityTokenPermissionCreationFailed*(self: Module, communityId: string) =
