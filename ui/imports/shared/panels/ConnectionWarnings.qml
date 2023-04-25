@@ -20,6 +20,8 @@ Loader {
     property string tooltipMessage
     property string toastText
 
+    property bool checksActive: true
+
     function updateBanner() {
         root.active = true
         if (connectionState === Constants.ConnectionStatus.Failure)
@@ -29,10 +31,11 @@ Loader {
     }
 
     sourceComponent: ModuleWarning {
+        id: banner
         QtObject {
             id: d
             readonly property bool isOnline: networkConnectionStore.isOnline
-            onIsOnlineChanged: if(!isOnline) hide()
+            onIsOnlineChanged: if(!isOnline) banner.hide()
         }
 
         onHideFinished: root.active = false
@@ -58,12 +61,13 @@ Loader {
     Connections {
         target: networkConnectionStore.networkConnectionModuleInst
         function onNetworkConnectionStatusUpdate(website: string, completelyDown: bool, connectionState: int, chainIds: string, lastCheckedAt: int)  {
-            if (website === websiteDown) {
+            if (website === root.websiteDown) {
                 root.connectionState = connectionState
                 root.chainIdsDown = chainIds.split(";")
                 root.completelyDown = completelyDown
                 root.lastCheckedAt = LocaleUtils.formatDateTime(new Date(lastCheckedAt*1000))
-                root.updateBanner()
+                if (root.checksActive)
+                    root.updateBanner()
             }
         }
     }

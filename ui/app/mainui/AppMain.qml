@@ -480,7 +480,7 @@ Item {
 
                 Layout.fillWidth: true
                 Layout.maximumHeight: implicitHeight
-                spacing: 1
+                spacing: 0
 
                 onIsConnectedChanged: {
                     processConnected()
@@ -718,6 +718,7 @@ Item {
                     id: walletBlockchainConnectionBanner
                     objectName: "walletBlockchainConnectionBanner"
                     Layout.fillWidth: true
+                    checksActive: appMain.rootStore.mainModuleInst.activeSection.sectionType === Constants.appSection.wallet
                     websiteDown: Constants.walletConnections.blockchains
                     withCache: networkConnectionStore.balanceCache
                     networkConnectionStore: appMain.networkConnectionStore
@@ -758,6 +759,7 @@ Item {
                     id: walletCollectiblesConnectionBanner
                     objectName: "walletCollectiblesConnectionBanner"
                     Layout.fillWidth: true
+                    checksActive: appMain.rootStore.mainModuleInst.activeSection.sectionType === Constants.appSection.wallet
                     websiteDown: Constants.walletConnections.collectibles
                     withCache: networkConnectionStore.collectiblesCache
                     networkConnectionStore: appMain.networkConnectionStore
@@ -784,6 +786,7 @@ Item {
                     id: walletMarketConnectionBanner
                     objectName: "walletMarketConnectionBanner"
                     Layout.fillWidth: true
+                    checksActive: appMain.rootStore.mainModuleInst.activeSection.sectionType === Constants.appSection.wallet
                     websiteDown: Constants.walletConnections.market
                     withCache: networkConnectionStore.marketValuesCache
                     networkConnectionStore: appMain.networkConnectionStore
