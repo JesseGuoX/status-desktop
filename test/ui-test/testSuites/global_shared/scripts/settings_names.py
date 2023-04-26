@@ -36,6 +36,7 @@ settingsContentBaseScrollView_Item = {"container": settingsContentBase_ScrollVie
 mainWindow_LeftTabView = {"container": statusDesktop_mainWindow, "type": "LeftTabView", "unnamed": 1, "visible": True}
 LeftTabView_ScrollView = {"container": mainWindow_LeftTabView, "type": "StatusScrollView", "unnamed": 1, "visible": True}
 
+
 # ENS view;
 settings_ENS_Start_Button = {"container": statusDesktop_mainWindow, "objectName": "ensStartButton", "type": "StatusButton"}
 settings_ENS_Search_Input = {"container": statusDesktop_mainWindow, "objectName": "ensUsernameInput", "type": "StyledTextField"}
