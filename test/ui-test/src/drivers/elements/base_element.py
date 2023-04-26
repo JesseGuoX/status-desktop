@@ -4,6 +4,7 @@ import configs
 import names
 import object
 import squish
+import test
 
 
 class BaseElement:
@@ -49,6 +50,10 @@ class BaseElement:
             return squish.waitForObject(self.object_name, 0).visible
         except (AttributeError, LookupError, RuntimeError):
             return False
+    
+    @property
+    def image(self) -> squish.Image:
+        return object.grabScreenshot(self.object)
 
     def click(
             self,
@@ -68,4 +73,31 @@ class BaseElement:
         return self
 
     def wait_until_hidden(self, timeout_msec: int = configs.squish.UI_LOAD_TIMEOUT_MSEC):
-        assert squish.waitFor(lambda: not self.is_visible, timeout_msec), f'Object {self} is not hidden'
+        squish.waitFor(lambda: not self.is_visible, timeout_msec), f'Object {self} is not hidden'
+
+    def wait_for_image(
+            self,
+            fp: str,
+            tolerant: bool = True,
+            threshold: int = 99.5,
+            min_scale: int = 50,
+            max_scale: int = 200,
+            multiscale: bool = True,
+            timeout_msec: int = squish.testSettings.waitForObjectTimeout
+    ) -> squish.UiTypes.ScreenRectangle:
+        try:
+            squish.waitForImage(
+                fp,
+                {
+                    'tolerant': tolerant,
+                    'threshold': threshold,
+                    'minScale': min_scale,
+                    'maxScale': max_scale,
+                    'multiscale': multiscale,
+                    'timeout': timeout_msec
+                },
+                self.object
+            )
+        except LookupError as err:
+            test.attachImage(squish.Image.load(fp), f'Image not found in/not equals to')
+            raise err

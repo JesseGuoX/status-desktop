@@ -12,4 +12,14 @@ def step(context, password):
 
 @Then("the password strength indicator is \"|any|\"")
 def step(context, strength):
-    _welcomeScreen.validate_password_strength(strength)
+    fp = Path(__file__).resolve().parent.parent / 'shared' / 'verificationPoints' / sys.platform / f'{strength}.png'
+
+    # # saved it for updating expected results
+    # import time
+    # time.sleep(10)
+    # fp.parent.mkdir(exist_ok=True, parents=True)
+    # _welcome_screen.password_strength_indicator.save(str(fp))
+
+    _welcome_screen.is_password_strength_indicator_equal(str(fp))
+
+    

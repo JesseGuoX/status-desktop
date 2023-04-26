@@ -15,17 +15,16 @@ Feature: Password strength validation including UI pixel-perfect validation
     ** and the user inputs username "tester123"
 
     Scenario Outline: As a user I want to see the strength of the password
-        Given the user clears input "onboarding_newPsw_Input"
-		When the user inputs the following "<password>" with ui-component "onboarding_newPsw_Input"
+		When the user inputs the password "<password>"
 		Then the password strength indicator is "<strength>"
 
 		Examples:
-	      | password   | strength                          |
-	      | abc        | lower_very_weak                   |
-	      | ABC        | upper_very_weak                   |
-	      | 123        | numbers_very_weak                 |
-	      | +_!        | symbols_very_weak                 |
-	      | +1_3!48    | numbers_symbols_weak              |
-	      | +1_3!48a   | numbers_symbols_lower_so-so       |
-	      | +1_3!48aT  | numbers_symbols_lower_upper_good  |
-	      | +1_3!48aTq | numbers_symbols_lower_upper_great |
+	      | password   | strength   |
+	      | abc        | very_weak  |
+	      | ABC        | very_weak  |
+	      | 123        | very_weak  |
+	      | +_!        | very_weak  |
+		  | +1_3!48    | weak       |
+		  | +1_3!48a   | so-so      |
+	      | +1_3!48aT  | good  		|
+	      | +1_3!48aTq | great 		|
