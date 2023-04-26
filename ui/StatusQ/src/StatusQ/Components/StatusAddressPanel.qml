@@ -48,14 +48,15 @@ Item {
     id: root
 
     /*required*/ property string value: ""
+    property string prefix: ""
     property bool showCopy: true
     property bool autHideCopyIcon: false
     property alias showFrame: frameRect.visible
     property bool expandable: false
     property bool expanded: true
-    property bool ens: false
 
     property alias font: statusAddress.font
+    property alias hovered: mainMouseArea.containsMouse
 
     signal doCopy(string value)
 
@@ -72,22 +73,9 @@ Item {
             Layout.rightMargin: Layout.leftMargin
             Layout.alignment: Qt.AlignVCenter | Qt.AlignHCenter
             Layout.minimumWidth: 120
-            Layout.preferredHeight: 32
+            Layout.preferredHeight: 38
 
             spacing: 6
-
-            StatusIcon {
-                icon: "address"
-
-                Layout.alignment: Qt.AlignVCenter
-                Layout.preferredWidth: 19
-                Layout.preferredHeight: 19
-
-                visible: frameRect.visible
-
-                color: Theme.palette.baseColor1
-                opacity: 0.5
-            }
 
             // Ensure the eliding is done in the middle of the value not taking into account `0x`
             RowLayout {
@@ -96,9 +84,8 @@ Item {
                 Layout.alignment: Qt.AlignVCenter
 
                 StatusBaseText {
-                    text: "0x"
+                    text: prefix
 
-                    visible: !root.ens
                     Layout.alignment: Qt.AlignVCenter
 
                     font: statusAddress.font
@@ -108,13 +95,13 @@ Item {
                 StatusBaseText {
                     id: statusAddress
 
-                    text: root.value.replace("0x", "").replace("0X", "")
+                    text: value
 
-                    Layout.preferredWidth: root.expanded || root.ens ? implicitWidth : (implicitWidth * 0.25).toFixed()
+                    Layout.preferredWidth: implicitWidth
                     Layout.alignment: Qt.AlignVCenter
 
                     font.family: Theme.palette.monoFont.name
-                    font.pixelSize: 15
+                    font.pixelSize: 13
                     font.weight: Font.Medium
                     elide: Text.ElideMiddle
                     color: Theme.palette.baseColor1
@@ -141,7 +128,7 @@ Item {
                     cursorShape: Qt.ArrowCursor
                     preventStealing: true
 
-                    onClicked: root.doCopy(root.value)
+                    onClicked: root.doCopy(root.prefix + root.value)
                     z: frameRect.z + 1
                 }
 
@@ -171,7 +158,7 @@ Item {
         color: "transparent"
         border.width: 1
         border.color: Theme.palette.baseColor2
-        radius: 36
+        radius: 8
     }
 
     MouseArea {
@@ -179,12 +166,10 @@ Item {
 
         anchors.fill: parent
 
-        hoverEnabled: root.expandable || root.autHideCopyIcon
-        enabled: (root.autHideCopyIcon && root.showCopy) || root.expandable
-        acceptedButtons: root.expandable ? Qt.LeftButton : Qt.NoButton
-        cursorShape: root.expandable ? Qt.PointingHandCursor : Qt.ArrowCursor
-
-        onClicked: root.expanded = !root.expanded
+        hoverEnabled: root.autHideCopyIcon
+        enabled: (root.autHideCopyIcon && root.showCopy)
+        acceptedButtons: Qt.NoButton
+        cursorShape: Qt.ArrowCursor
         z: frameLayout.z - 1
     }
 }

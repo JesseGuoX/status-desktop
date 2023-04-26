@@ -105,6 +105,8 @@ method switchAccount*(self: Module, accountIndex: int) =
     walletAccount.name,
     walletAccount.mixedCaseAddress,
     walletAccount.ens,
+    walletAccount.color,
+    walletAccount.emoji,
     walletAccount.assetsLoading,
   )
 

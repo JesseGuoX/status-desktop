@@ -1,5 +1,6 @@
 import QtQuick 2.15
 import QtQuick.Controls 2.15
+import QtQuick.Layouts 1.13
 
 import Storybook 1.0
 import Models 1.0
@@ -17,11 +18,14 @@ SplitView {
         SplitView.fillWidth: true
         SplitView.fillHeight: true
 
+        ColumnLayout {
+            anchors.centerIn: parent
+
         Rectangle {
             width: 800
             height: 200
             border.width: 1
-            anchors.centerIn: parent
+//            anchors.centerIn: parent
 
             NetworkFilter {
                 anchors.centerIn: parent
@@ -37,6 +41,27 @@ SplitView {
                 multiSelection: multiSelectionCheckBox.checked
             }
         }
+
+        Rectangle {
+            width: 800
+            height: 200
+            border.width: 1
+//            anchors.centerIn: parent
+
+            NetworkFilterNew {
+                anchors.centerIn: parent
+
+                layer1Networks: NetworksModel.layer1Networks
+                layer2Networks: NetworksModel.layer2Networks
+                testNetworks: NetworksModel.testNetworks
+                enabledNetworks: NetworksModel.enabledNetworks
+                allNetworks: enabledNetworks
+
+                multiSelection: multiSelectionCheckBox.checked
+            }
+        }
+        }
+
     }
 
     LogsAndControlsPanel {

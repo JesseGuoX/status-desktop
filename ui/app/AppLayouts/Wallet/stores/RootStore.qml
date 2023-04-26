@@ -197,4 +197,13 @@ QtObject {
     function runEditAccountPopup(address) {
         walletSection.runEditAccountPopup(address)
     }
+
+    function getAllNetworksSupportedString() {
+        let result = ""
+        for(var i = 0; i < allNetworks.count; i++) {
+            let shortName = allNetworks.rowData(i, "shortName")
+            result += shortName + ':'
+        }
+        return result
+    }
 }

@@ -13,6 +13,8 @@ QtObject:
       mixedcaseAddress: string
       currencyBalance: CurrencyAmount
       ens: string
+      color: string
+      emoji: string
       balanceLoading: bool
 
   proc setup(self: View) =
@@ -60,6 +62,20 @@ QtObject:
     read = getEns
     notify = ensChanged
 
+  proc getColor(self: View): QVariant {.slot.} =
+    return newQVariant(self.color)
+  proc colorChanged(self: View) {.signal.}
+  QtProperty[QVariant] color:
+    read = getColor
+    notify = colorChanged
+
+  proc getEmoji(self: View): QVariant {.slot.} =
+    return newQVariant(self.emoji)
+  proc emojiChanged(self: View) {.signal.}
+  QtProperty[QVariant] emoji:
+    read = getEmoji
+    notify = emojiChanged
+
   proc getbalanceLoading(self: View): QVariant {.slot.} =
     return newQVariant(self.balanceLoading)
   proc balanceLoadingChanged(self: View) {.signal.}
@@ -82,4 +98,10 @@ QtObject:
     if(self.ens != item.getEns()):
       self.ens = item.getEns()
       self.ensChanged()
+    if(self.color != item.getColor()):
+      self.color = item.getColor()
+      self.colorChanged()
+    if(self.emoji != item.getEmoji()):
+      self.emoji = item.getEmoji()
+      self.emojiChanged()
     self.setBalanceLoading(item.getBalanceLoading())  

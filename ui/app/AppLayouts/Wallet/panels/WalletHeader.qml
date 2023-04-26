@@ -6,6 +6,7 @@ import StatusQ.Core 0.1
 import StatusQ.Controls 0.1
 import StatusQ.Components 0.1
 import StatusQ.Core.Theme 0.1
+import StatusQ.Core.Utils 0.1 as StatusQUtils
 
 import utils 1.0
 
@@ -27,7 +28,8 @@ Item {
 
     GridLayout {
         width: parent.width
-        columns: 2
+        columns: 3
+        rowSpacing: 0
 
         // account + balance
         RowLayout {
@@ -39,24 +41,38 @@ Item {
                 font.pixelSize: 28
                 font.bold: true
                 text: overview.name
+                color: overview.color
+                lineHeightMode: Text.FixedHeight
+                lineHeight: 38
             }
-            StatusTextWithLoadingState {
+            StatusEmoji {
                 Layout.alignment: Qt.AlignVCenter
-                font.pixelSize: 28
-                font.bold: true
-                customColor: Theme.palette.baseColor1
-                text: loading ? Constants.dummyText : LocaleUtils.currencyAmountToLocaleString(root.overview.currencyBalance)
-                loading: root.overview.balanceLoading
-                visible: !networkConnectionStore.accountBalanceNotAvailable
+                Layout.preferredWidth: 28
+                Layout.preferredHeight: 28
+                emojiId: StatusQUtils.Emoji.iconId(overview.emoji ?? "", StatusQUtils.Emoji.size.big) || ""
             }
         }
 
+        StatusButton {
+            Layout.alignment: Qt.AlignTrailing
+            Layout.rightMargin: -60
+            Layout.preferredHeight: 38
+
+            borderColor: Theme.palette.baseColor2
+            normalColor: Theme.palette.transparent
+            hoverColor: Theme.palette.baseColor2
+            font.weight: Font.Normal
+            icon.name: "download"
+            textColor: hovered ? Theme.palette.directColor1 : Theme.palette.baseColor1
+            text: walletStore.getAllNetworksSupportedString(hovered) + (overview.ens ||  StatusQUtils.Utils.elideText(overview.mixedcaseAddress, 6, 4))
+        }
+
         // network filter
-        NetworkFilter {
+        NetworkFilterNew {
             id: networkFilter
 
             Layout.alignment: Qt.AlignTrailing
-            Layout.rowSpan: 2
+//            Layout.rowSpan: 2
 
             allNetworks: walletStore.allNetworks
             layer1Networks: walletStore.layer1Networks
@@ -69,14 +85,28 @@ Item {
             }
         }
 
-        StatusAddressPanel {
-            objectName: "addressPanel"
-            value: overview.ens || overview.mixedcaseAddress
-            ens: !!overview.ens
-            autHideCopyIcon: true
-            expanded: false
-
-            onDoCopy: () => root.store.copyToClipboard(overview.mixedcaseAddress)
+        RowLayout {
+            spacing: 4
+            visible: !networkConnectionStore.accountBalanceNotAvailable
+            StatusTextWithLoadingState {
+                font.pixelSize: 28
+                font.bold: true
+                customColor: Theme.palette.directColor1
+                text: loading ? Constants.dummyText : LocaleUtils.currencyAmountToLocaleString(root.overview.currencyBalance, {noSymbol: true})
+                loading: root.overview.balanceLoading
+                lineHeightMode: Text.FixedHeight
+                lineHeight: 38
+            }
+            StatusTextWithLoadingState {
+                Layout.alignment: Qt.AlignBottom
+                font.pixelSize: 15
+                font.bold: true
+                customColor: Theme.palette.directColor1
+                text: loading ? Constants.dummyText : root.overview.currencyBalance.symbol //LocaleUtils.currencyAmountToLocaleString(root.overview.currencyBalance)
+                loading: root.overview.balanceLoading
+                lineHeightMode: Text.FixedHeight
+                lineHeight: 25
+            }
         }
     }
 }

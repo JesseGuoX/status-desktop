@@ -55,7 +55,7 @@ Item {
         id: selectRectangleItem
 
         width: parent.width
-        height: 56
+        height: 38
 
         // FIXME this should be a (styled) ComboBox
         StatusListItem {
