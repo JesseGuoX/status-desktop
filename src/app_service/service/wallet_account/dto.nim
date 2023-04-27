@@ -104,7 +104,9 @@ type
     lastUsedDerivationIndex*: int
     hasBalanceCache*: bool
     hasMarketValuesCache*: bool
-    removed*: bool # needs for synchronization
+    removed*: bool # needed for synchronization
+    fullyOperable*: bool # needed for synchronization, fully operable accounts are those for which we have created keystore files if they are not a keycard migrated accounts
+    toRemove*: bool # needed for synchronization, accounts which are not displayed in UI, but still in the DB, will be removed from DB the first time user provides a password
 
 proc newDto*(
   name: string,
@@ -151,6 +153,8 @@ proc toWalletAccountDto*(jsonObj: JsonNode): WalletAccountDto =
   discard jsonObj.getProp("keypair-name", result.keypairName)
   discard jsonObj.getProp("last-used-derivation-index", result.lastUsedDerivationIndex)
   discard jsonObj.getProp("removed", result.removed)
+  discard jsonObj.getProp("fully-operable", result.fullyOperable)
+  discard jsonObj.getProp("to-remove", result.toRemove)
   result.assetsLoading = true
   result.hasBalanceCache = false
   result.hasMarketValuesCache = false

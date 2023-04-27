@@ -878,7 +878,7 @@ QtObject:
     return false
 
   proc handleWalletAccount(self: Service, account: WalletAccountDto) =
-    if account.removed:
+    if account.removed or account.toRemove:
       self.removeAccountFromLocalStoreAndNotify(account.address)
     else:
       if self.walletAccountsContainsAddress(account.address):

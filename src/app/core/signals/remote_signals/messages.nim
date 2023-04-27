@@ -143,6 +143,7 @@ proc fromEvent*(T: type MessageSignal, event: JsonNode): MessageSignal =
       signal.keycardActions.add(jsonKc.toKeycardActionDto())
 
   if event["event"]{"accounts"} != nil:
+    echo "RECEIVED SIGNAL: ", $event
     for jsonAcc in event["event"]["accounts"]:
       signal.walletAccounts.add(jsonAcc.toWalletAccountDto())
 
