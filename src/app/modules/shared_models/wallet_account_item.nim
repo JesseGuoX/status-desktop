@@ -1,4 +1,7 @@
 import strformat
+from ../../../app_service/service/wallet_account/dto import AccountNonOperable
+
+export AccountNonOperable
 
 type
   WalletAccountItem* = ref object of RootObj
@@ -9,6 +12,7 @@ type
     walletType: string
     path: string
     keyUid: string
+    operable: string
 
 proc setup*(self: WalletAccountItem,
   name: string = "",
@@ -17,7 +21,8 @@ proc setup*(self: WalletAccountItem,
   emoji: string = "",
   walletType: string = "",
   path: string = "",
-  keyUid: string = ""
+  keyUid: string = "",
+  operable: string = AccountNonOperable
   ) =
     self.name = name
     self.address = address
@@ -26,6 +31,7 @@ proc setup*(self: WalletAccountItem,
     self.walletType = walletType
     self.path = path
     self.keyUid = keyUid
+    self.operable = operable
 
 proc initWalletAccountItem*(
   name: string = "",
@@ -34,7 +40,8 @@ proc initWalletAccountItem*(
   emoji: string = "",
   walletType: string = "",
   path: string = "",
-  keyUid: string = ""
+  keyUid: string = "",
+  operable: string = AccountNonOperable
   ): WalletAccountItem =
   result = WalletAccountItem()
   result.setup(name,
@@ -43,7 +50,8 @@ proc initWalletAccountItem*(
     emoji,
     walletType,
     path,
-    keyUid)
+    keyUid,
+    operable)
   
 
 proc `$`*(self: WalletAccountItem): string =
@@ -55,6 +63,7 @@ proc `$`*(self: WalletAccountItem): string =
     walletType: {self.walletType},
     path: {self.path},
     keyUid: {self.keyUid},
+    operable: {self.operable}
     ]"""
 
 proc name*(self: WalletAccountItem): string {.inline.} =
@@ -86,3 +95,9 @@ proc path*(self: WalletAccountItem): string {.inline.} =
 
 proc keyUid*(self: WalletAccountItem): string {.inline.} =
   return self.keyUid
+
+proc operable*(self: WalletAccountItem): string {.inline.} =
+  return self.operable
+
+proc `operable=`*(self: WalletAccountItem, value: string) {.inline.} =
+  self.operable = value
