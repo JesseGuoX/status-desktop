@@ -125,7 +125,7 @@ ColumnLayout {
         sourceComponent: MessageContextMenuView {
             store: root.rootStore
             reactionModel: root.rootStore.emojiReactionsModel
-            disabledForChat: root.chatType === Constants.chatType.oneToOne && root.contactRequestState !== Constants.ContactRequestState.Mutual
+            disabledForChat: root.chatType === Constants.chatType.oneToOne && root.contactRequestState !== Constants.ContactRequestState.Mutual && !root.rootStore.isUserAllowedToSendMessage
 
             onPinMessage: {
                 messageStore.pinMessage(messageId)
@@ -196,7 +196,7 @@ ColumnLayout {
                 publicKey: root.chatId
                 isOneToOne: root.chatType === Constants.chatType.oneToOne
                 contactRequestState: root.contactRequestState
-                isChatBlocked: root.isBlocked
+                isChatBlocked: root.isBlocked || !root.rootStore.isUserAllowedToSendMessage
                 channelEmoji: !chatContentModule ? "" : (chatContentModule.chatDetails.emoji || "")
                 isActiveChannel: root.isActiveChannel
                 onShowReplyArea: {
@@ -249,12 +249,14 @@ ColumnLayout {
                     anchors.margins: Style.current.smallPadding
 
                     enabled: root.rootStore.sectionDetails.joined && !root.rootStore.sectionDetails.amIBanned &&
-                             !(chatType === Constants.chatType.oneToOne && root.contactRequestState !== Constants.ContactRequestState.Mutual)
+                             !(chatType === Constants.chatType.oneToOne && root.contactRequestState !== Constants.ContactRequestState.Mutual) &&
+                             root.rootStore.isUserAllowedToSendMessage
 
                     store: root.rootStore
                     usersStore: root.usersStore
 
                     textInput.text: inputAreaLoader.preservedText
+                    textInput.placeholderText: root.rootStore.chatInputPlaceHolderText
                     messageContextMenu: contextMenuLoader.item
                     emojiPopup: root.emojiPopup
                     stickersPopup: root.stickersPopup
