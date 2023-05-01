@@ -146,6 +146,7 @@ StackLayout {
                    Layout.fillWidth: true
                 }
                 CommunityBanner {
+                    visible: root.owned
                     text: qsTr("Try an airdrop to reward your community for engagement!")
                     buttonText: qsTr("Airdrop Tokens")
                     icon.name: "airdrop"
@@ -157,6 +158,7 @@ StackLayout {
                 }
 
                 CommunityBanner {
+                    visible: root.owned
                     text: qsTr("Back up community key")
                     buttonText: qsTr("Back up")
                     icon.name: "objects"

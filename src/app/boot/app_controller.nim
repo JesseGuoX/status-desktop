@@ -185,8 +185,14 @@ proc newAppController*(statusFoundation: StatusFoundation): AppController =
   result.messageService = message_service.newService(
     statusFoundation.events, statusFoundation.threadpool, result.contactsService, result.tokenService, result.walletAccountService, result.networkService
   )
-  result.communityService = community_service.newService(statusFoundation.events,
-    statusFoundation.threadpool, result.chatService, result.activityCenterService, result.messageService)
+  result.communityService = community_service.newService(
+    statusFoundation.events,
+    statusFoundation.threadpool, 
+    result.chatService, 
+    result.activityCenterService, 
+    result.messageService,
+    result.walletAccountService,
+    result.collectibleService)
   result.transactionService = transaction_service.newService(statusFoundation.events, statusFoundation.threadpool, result.networkService, result.settingsService, result.tokenService)
   result.bookmarkService = bookmark_service.newService(statusFoundation.events)
   result.profileService = profile_service.newService(statusFoundation.events, result.settingsService)
@@ -403,6 +409,13 @@ proc load(self: AppController) =
   self.nodeConfigurationService.init()
   self.mailserversService.init()
   self.contactsService.init()
+
+  self.networkService.init()
+  self.tokenService.init()
+  self.currencyService.init()
+  self.walletAccountService.init()
+  self.collectibleService.init()
+  
   self.chatService.init()
   self.messageService.init()
   self.communityService.init()
@@ -425,12 +438,6 @@ proc load(self: AppController) =
 
   self.buildAndRegisterLocalAccountSensitiveSettings()
   self.buildAndRegisterUserProfile()
-
-  self.networkService.init()
-  self.tokenService.init()
-  self.currencyService.init()
-  self.walletAccountService.init()
-  self.collectibleService.init()
 
   # Apply runtime log level settings
   if not existsEnv("LOG_LEVEL"):

@@ -35,11 +35,15 @@ Item {
     property bool hasAddedContacts: false
     property var communityData
 
+    property bool isSectionAdmin:
+        communityData.permissionType === Constants.permissionType.owner ||
+        communityData.permissionType === Constants.permissionType.admin
+
     signal infoButtonClicked
     signal manageButtonClicked
 
     TapHandler {
-        enabled: communityData.amISectionAdmin
+        enabled: root.isSectionAdmin
         acceptedButtons: Qt.RightButton
         onTapped: {
             adminPopupMenu.showInviteButton = true
@@ -59,7 +63,7 @@ Item {
         membersCount: communityData.members.count
         image: communityData.image
         color: communityData.color
-        amISectionAdmin: communityData.amISectionAdmin
+        amISectionAdmin: root.isSectionAdmin
         openCreateChat: root.store.openCreateChat
         onInfoButtonClicked: root.infoButtonClicked()
         onAdHocChatButtonClicked: root.store.openCloseCreateChatView()
@@ -125,7 +129,7 @@ Item {
         anchors.topMargin: active ? 8 : 0
         anchors.horizontalCenter: parent.horizontalCenter
 
-        active: communityData.amISectionAdmin && nbRequests > 0
+        active: root.isSectionAdmin && nbRequests > 0
         height: nbRequests > 0 ? 64 : 0
         sourceComponent: Component {
             StatusContactRequestsIndicatorListItem {
@@ -145,7 +149,7 @@ Item {
 
     StatusMenu {
         id: adminPopupMenu
-        enabled: communityData.amISectionAdmin
+        enabled: root.isSectionAdmin
 
         property bool showInviteButton: false
 
@@ -202,8 +206,8 @@ Item {
         StatusChatListAndCategories {
             id: communityChatListAndCategories
             anchors.horizontalCenter: parent.horizontalCenter
-            draggableItems: communityData.amISectionAdmin
-            draggableCategories: communityData.amISectionAdmin
+            draggableItems: root.isSectionAdmin
+            draggableCategories: root.isSectionAdmin
 
             model: root.communitySectionModule.model
             highlightItem: !root.store.openCreateChat
@@ -213,8 +217,8 @@ Item {
                 root.communitySectionModule.setActiveItem(id)
             }
 
-            showCategoryActionButtons: communityData.amISectionAdmin
-            showPopupMenu: communityData.amISectionAdmin && communityData.canManageUsers
+            showCategoryActionButtons: root.isSectionAdmin
+            showPopupMenu: root.isSectionAdmin && communityData.canManageUsers
 
             onChatItemUnmuted: root.communitySectionModule.unmuteChat(id)
             onChatItemReordered: function(categoryId, chatId, to) {
@@ -230,14 +234,14 @@ Item {
                 StatusAction {
                     text: qsTr("Create channel")
                     icon.name: "channel"
-                    enabled: communityData.amISectionAdmin
+                    enabled: root.isSectionAdmin
                     onTriggered: Global.openPopup(createChannelPopup)
                 }
 
                 StatusAction {
                     text: qsTr("Create category")
                     icon.name: "channel-category"
-                    enabled: communityData.amISectionAdmin
+                    enabled: root.isSectionAdmin
                     onTriggered: Global.openPopup(createCategoryPopup)
                 }
 
@@ -273,7 +277,7 @@ Item {
 
                 StatusAction {
                     objectName: "editCategoryMenuItem"
-                    enabled: communityData.amISectionAdmin
+                    enabled: root.isSectionAdmin
                     text: qsTr("Edit Category")
                     icon.name: "edit"
                     onTriggered: {
@@ -287,12 +291,12 @@ Item {
                 }
 
                 StatusMenuSeparator {
-                    visible: communityData.amISectionAdmin
+                    visible: root.isSectionAdmin
                 }
 
                 StatusAction {
                     objectName: "deleteCategoryMenuItem"
-                    enabled: communityData.amISectionAdmin
+                    enabled: root.isSectionAdmin
                     text: qsTr("Delete Category")
                     icon.name: "delete"
                     type: StatusAction.Type.Danger
@@ -398,7 +402,7 @@ Item {
             spacing: Style.current.bigPadding
 
             Loader {
-                active: communityData.amISectionAdmin &&
+                active: root.isSectionAdmin &&
                         (!localAccountSensitiveSettings.hiddenCommunityWelcomeBanners ||
                          !localAccountSensitiveSettings.hiddenCommunityWelcomeBanners.includes(communityData.id))
                 width: parent.width
@@ -415,7 +419,7 @@ Item {
             } // Loader
 
             Loader {
-                active: communityData.amISectionAdmin &&
+                active: root.isSectionAdmin &&
                         (!localAccountSensitiveSettings.hiddenCommunityChannelAndCategoriesBanners ||
                          !localAccountSensitiveSettings.hiddenCommunityChannelAndCategoriesBanners.includes(communityData.id))
                 width: parent.width
@@ -435,7 +439,7 @@ Item {
             } // Loader
 
             Loader {
-                active: communityData.amISectionAdmin &&
+                active: root.communityData.permissionType === Constants.permissionType.owner &&
                         (!localAccountSensitiveSettings.hiddenCommunityBackUpBanners ||
                          !localAccountSensitiveSettings.hiddenCommunityBackUpBanners.includes(communityData.id))
                 width: parent.width
@@ -461,7 +465,7 @@ Item {
         anchors.horizontalCenter: parent.horizontalCenter
         anchors.bottom: parent.bottom
         anchors.bottomMargin: Style.current.padding
-        active: communityData.amISectionAdmin
+        active: root.isSectionAdmin
         sourceComponent: Component {
             StatusBaseText {
                 id: createChannelOrCategoryBtn

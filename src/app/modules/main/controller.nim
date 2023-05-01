@@ -393,6 +393,12 @@ proc init*(self: Controller) =
     let args = SharedKeycarModuleArgs(e)
     self.delegate.tryKeycardSync(args.keyUid, args.pin)
 
+  self.events.on(SIGNAL_WALLET_ACCOUNT_TOKENS_REBUILT) do(e: Args):
+      self.delegate.updateCommunitiesPermissions()
+
+  self.events.on(SIGNAL_OWNED_COLLECTIBLES_UPDATE_FINISHED) do(e: Args):
+      self.delegate.updateCommunitiesPermissions()
+
 proc isConnected*(self: Controller): bool =
   return self.nodeService.isConnected()
 
@@ -477,3 +483,6 @@ proc getCommunityTokens*(self: Controller, communityId: string): seq[CommunityTo
 
 proc getNetwork*(self:Controller, chainId: int): NetworkDto =
   self.networksService.getNetwork(chainId)
+
+proc getCommunityPermissionType*(self: Controller, communityId: string): PermissionType =
+  return self.communityService.getCommunityPermissionType(communityId)

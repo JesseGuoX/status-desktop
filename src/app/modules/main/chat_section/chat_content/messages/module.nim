@@ -559,7 +559,7 @@ method amIChatAdmin*(self: Module): bool =
     return false
   else:
     let communityDto = self.controller.getCommunityDetails()
-    return communityDto.admin
+    return communityDto.owner
 
 method pinMessageAllowedForMembers*(self: Module): bool =
   if(self.controller.belongsToCommunity()):
@@ -717,7 +717,7 @@ method markMessagesAsRead*(self: Module, messages: seq[string]) =
   self.view.model().markAsSeen(messages)
 
 method updateCommunityDetails*(self: Module, community: CommunityDto) =
-  self.view.setAmIChatAdmin(community.admin)
+  self.view.setAmIChatAdmin(community.owner)
   self.view.setIsPinMessageAllowedForMembers(community.adminSettings.pinMessageAllMembersEnabled)
 
 proc setChatDetails(self: Module, chatDetails: ChatDto) =

@@ -24,7 +24,7 @@ type
     sectionType: SectionType
     id: string
     name: string
-    amISectionAdmin: bool
+    permissionType: PermissionType
     description: string
     introMessage: string
     outroMessage: string
@@ -60,7 +60,7 @@ proc initItem*(
     id: string,
     sectionType: SectionType,
     name: string,
-    amISectionAdmin = false,
+    permissionType = PermissionType.Member,
     description = "",
     introMessage = "",
     outroMessage = "",
@@ -95,7 +95,7 @@ proc initItem*(
   result.id = id
   result.sectionType = sectionType
   result.name = name
-  result.amISectionAdmin = amISectionAdmin
+  result.permissionType = permissionType
   result.description = description
   result.introMessage = introMessage
   result.outroMessage = outroMessage
@@ -141,7 +141,7 @@ proc `$`*(self: SectionItem): string =
     id: {self.id},
     sectionType: {self.sectionType.int},
     name: {self.name},
-    amISectionAdmin: {self.amISectionAdmin},
+    permissionType: {self.permissionType},
     description: {self.description},
     introMessage: {self.introMessage},
     outroMessage: {self.outroMessage},
@@ -182,8 +182,11 @@ proc sectionType*(self: SectionItem): SectionType {.inline.} =
 proc name*(self: SectionItem): string {.inline.} =
   self.name
 
-proc amISectionAdmin*(self: SectionItem): bool {.inline.} =
-  self.amISectionAdmin
+proc permissionType*(self: SectionItem): PermissionType {.inline.} =
+  self.permissionType
+
+proc `permissionType=`*(self: var SectionItem, value: PermissionType) {.inline.} =
+  self.permissionType = value
 
 proc description*(self: SectionItem): string {.inline.} =
   self.description

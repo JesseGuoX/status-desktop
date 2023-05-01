@@ -264,7 +264,7 @@ proc createChannelGroupItem[T](self: Module[T], channelGroup: ChannelGroupDto): 
     channelGroup.id,
     if isCommunity: SectionType.Community else: SectionType.Chat,
     if isCommunity: channelGroup.name else: conf.CHAT_SECTION_NAME,
-    channelGroup.admin,
+    if isCommunity: self.controller.getCommunityPermissionType(channelGroup.id) else: PermissionType.Owner,
     channelGroup.description,
     channelGroup.introMessage,
     channelGroup.outroMessage,
@@ -401,7 +401,7 @@ method load*[T](
     conf.COMMUNITIESPORTAL_SECTION_ID,
     SectionType.CommunitiesPortal,
     conf.COMMUNITIESPORTAL_SECTION_NAME,
-    amISectionAdmin = false,
+    permissionType = PermissionType.Owner,
     description = "",
     image = "",
     icon = conf.COMMUNITIESPORTAL_SECTION_ICON,
@@ -420,7 +420,7 @@ method load*[T](
     conf.WALLET_SECTION_ID,
     SectionType.Wallet,
     conf.WALLET_SECTION_NAME,
-    amISectionAdmin = false,
+    permissionType = PermissionType.Owner,
     description = "",
     introMessage = "",
     outroMessage = "",
@@ -441,7 +441,7 @@ method load*[T](
     conf.BROWSER_SECTION_ID,
     SectionType.Browser,
     conf.BROWSER_SECTION_NAME,
-    amISectionAdmin = false,
+    permissionType = PermissionType.Owner,
     description = "",
     introMessage = "",
     outroMessage = "",
@@ -462,7 +462,7 @@ method load*[T](
     conf.NODEMANAGEMENT_SECTION_ID,
     SectionType.NodeManagement,
     conf.NODEMANAGEMENT_SECTION_NAME,
-    amISectionAdmin = false,
+    permissionType = PermissionType.Owner,
     description = "",
     introMessage = "",
     outroMessage = "",
@@ -483,7 +483,7 @@ method load*[T](
     conf.SETTINGS_SECTION_ID,
     SectionType.ProfileSettings,
     conf.SETTINGS_SECTION_NAME,
-    amISectionAdmin = false,
+    permissionType = PermissionType.Owner,
     description = "",
     introMessage = "",
     outroMessage = "",
@@ -519,7 +519,7 @@ method load*[T](
       LOADING_SECTION_ID,
       SectionType.LoadingSection,
       name = "",
-      amISectionAdmin = false,
+      permissionType = PermissionType.Owner,
       description = "",
       image = "",
       icon = "",
@@ -1212,3 +1212,12 @@ method activateStatusDeepLink*[T](self: Module[T], statusDeepLink: string) =
 method onDeactivateChatLoader*[T](self: Module[T], sectionId: string, chatId: string) =
   if (sectionId.len > 0 and self.channelGroupModules.contains(sectionId)):
     self.channelGroupModules[sectionId].onDeactivateChatLoader(chatId)
+
+method updateCommunitiesPermissions*[T](self: Module[T]) =
+  let permissionsHash = newTable[string, PermissionType]()
+  for section in self.channelGroupModules.values:
+    if section.isCommunity():
+      let sectionId = section.getMySectionId()
+      permissionsHash[sectionId] = self.controller.getCommunityPermissionType(sectionId)
+
+  self.view.model().updateSectionsPermissions(permissionsHash)

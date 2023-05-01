@@ -7,6 +7,7 @@ import ../../../../app_service/service/community/service as community_service
 import ../../../../app_service/service/contacts/service as contacts_service
 import ../../../../app_service/service/network/service as networks_service
 import ../../../../app_service/service/community_tokens/service as community_tokens_service
+import ../../../../app_service/common/types as common_types
 
 type
   Controller* = ref object of RootObj
@@ -253,3 +254,6 @@ proc getCommunityTokens*(self: Controller, communityId: string): seq[CommunityTo
 
 proc getNetworks*(self:Controller): seq[NetworkDto] =
   self.networksService.getNetworks()
+
+proc getCommunityPermissionType*(self:Controller, communityId: string): common_types.PermissionType =
+  return self.communityService.getCommunityPermissionType(communityId)

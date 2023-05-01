@@ -1,6 +1,6 @@
 {.used.}
 
-import json, sequtils, sugar, tables, strutils, json_serialization
+import json, sequtils, sugar, tables, strutils, json_serialization, chronicles
 
 import ../../../../backend/communities
 include ../../../common/json_utils
@@ -68,7 +68,7 @@ type CommunityTokensMetadataDto* = object
 
 type CommunityDto* = object
   id*: string
-  admin*: bool
+  owner*: bool
   verified*: bool
   joined*: bool
   spectated*: bool
@@ -247,7 +247,7 @@ proc toCommunityTokenPermissionDto*(jsonObj: JsonNode): CommunityTokenPermission
 proc toCommunityDto*(jsonObj: JsonNode): CommunityDto =
   result = CommunityDto()
   discard jsonObj.getProp("id", result.id)
-  discard jsonObj.getProp("admin", result.admin)
+  discard jsonObj.getProp("admin", result.owner)
   discard jsonObj.getProp("verified", result.verified)
   discard jsonObj.getProp("joined", result.joined)
   discard jsonObj.getProp("spectated", result.spectated)
@@ -319,6 +319,8 @@ proc toCommunityDto*(jsonObj: JsonNode): CommunityDto =
     for tokenObj in communityTokensMetadataObj:
       result.communityTokensMetadata.add(tokenObj.toCommunityTokensMetadataDto())
 
+  warn "----------", result=result
+
 proc toCommunityMembershipRequestDto*(jsonObj: JsonNode): CommunityMembershipRequestDto =
   result = CommunityMembershipRequestDto()
   discard jsonObj.getProp("id", result.id)
@@ -372,7 +374,7 @@ proc toChannelGroupDto*(communityDto: CommunityDto): ChannelGroupDto =
     categories: communityDto.categories,
     # Community doesn't have an ensName yet. Add this when it is added in status-go
     # ensName: communityDto.ensName,
-    admin: communityDto.admin,
+    admin: communityDto.owner,
     verified: communityDto.verified,
     description: communityDto.description,
     introMessage: communityDto.introMessage,

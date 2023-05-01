@@ -16,10 +16,8 @@ SettingsPageLayout {
     required property var collectiblesModel
     required property var channelsModel
 
-    // name, image, color properties expected
+    // name, image, color, owner properties expected
     required property var communityDetails
-
-    property bool isOwner: communityDetails.isOwner
 
     property int viewWidth: 560 // by design
 
@@ -177,7 +175,6 @@ SettingsPageLayout {
             collectiblesModel: root.collectiblesModel
             channelsModel: root.channelsModel
             communityDetails: root.communityDetails
-            isOwner: root.isOwner
 
             isEditState: root.state === d.editPermissionViewState
 

@@ -333,7 +333,7 @@ method amIChatAdmin*(self: Module): bool =
     return false
   else:
     let communityDto = self.controller.getCommunityDetails()
-    return communityDto.admin
+    return communityDto.owner
 
 method onContactDetailsUpdated*(self: Module, contactId: string) =
   let updatedContact = self.controller.getContactDetails(contactId)

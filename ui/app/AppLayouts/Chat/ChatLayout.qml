@@ -47,7 +47,8 @@ StackLayout {
             membersCount: communityData.members.count
             accessType: communityData.access
             joinCommunity: true
-            amISectionAdmin: communityData.amISectionAdmin
+            amISectionAdmin: communityData.permissionType === Constants.permissionType.owner ||
+                             communityData.permissionType === Constants.permissionType.admin
             communityItemsModel: root.rootStore.communityItemsModel
             requirementsMet: root.permissionsStore.allTokenRequirementsMet
             communityHoldingsModel: root.permissionsStore.permissionsModel

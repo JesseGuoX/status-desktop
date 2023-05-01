@@ -147,7 +147,7 @@ method getCommunityItem(self: Module, c: CommunityDto): SectionItem =
       c.id,
       SectionType.Community,
       c.name,
-      c.admin,
+      permissionType = self.controller.getCommunityPermissionType(c.id),
       c.description,
       c.introMessage,
       c.outroMessage,

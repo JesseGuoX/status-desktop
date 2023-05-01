@@ -5,12 +5,14 @@ import json
 import section_item, member_model
 import ../main/communities/tokens/models/token_item
 
+import ../../../app_service/common/types
+
 type
   ModelRole {.pure.} = enum
     Id = UserRole + 1
     SectionType
     Name
-    AmISectionAdmin
+    PermissionType
     Description
     IntroMessage
     OutroMessage
@@ -82,7 +84,7 @@ QtObject:
       ModelRole.Id.int:"id",
       ModelRole.SectionType.int:"sectionType",
       ModelRole.Name.int:"name",
-      ModelRole.AmISectionAdmin.int: "amISectionAdmin",
+      ModelRole.PermissionType.int: "permissionType",
       ModelRole.Description.int:"description",
       ModelRole.IntroMessage.int:"introMessage",
       ModelRole.OutroMessage.int:"outroMessage",
@@ -133,8 +135,8 @@ QtObject:
       result = newQVariant(item.sectionType.int)
     of ModelRole.Name:
       result = newQVariant(item.name)
-    of ModelRole.AmISectionAdmin:
-      result = newQVariant(item.amISectionAdmin)
+    of ModelRole.PermissionType:
+      result = newQVariant(item.permissionType.int)
     of ModelRole.Description:
       result = newQVariant(item.description)
     of ModelRole.IntroMessage:
@@ -270,6 +272,7 @@ QtObject:
     defer: dataIndex.delete
     self.dataChanged(dataIndex, dataIndex, @[
       ModelRole.Name.int,
+      ModelRole.PermissionType.int,
       ModelRole.Description.int,
       ModelRole.IntroMessage.int,
       ModelRole.OutroMessage.int,
@@ -411,7 +414,7 @@ QtObject:
         let jsonObj = %* {
           "id": item.id,
           "name": item.name,
-          "amISectionAdmin": item.amISectionAdmin,
+          "permissionType": item.permissionType.int,
           "description": item.description,
           "introMessage": item.introMessage,
           "outroMessage": item.outroMessage,
@@ -437,3 +440,17 @@ QtObject:
           "encrypted": item.encrypted,
         }
         return $jsonObj
+
+  proc updateSectionsPermissions*(self: SectionModel, permissionsHash: TableRef[string, PermissionType]) =
+    if permissionsHash.len == 0:
+      return
+
+    for i in 0 ..< self.items.len:
+     let id = self.items[i].id
+     if id in permissionsHash:
+       let newPermission = permissionsHash[id]
+       if newPermission != self.items[i].permissionType:
+         let index = self.createIndex(i, 0, nil)
+         defer: index.delete
+         self.items[i].permissionType = newPermission
+         self.dataChanged(index, index, @[ModelRole.PermissionType.int])

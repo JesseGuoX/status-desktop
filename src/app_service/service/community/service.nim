@@ -6,6 +6,8 @@ import ./dto/community as community_dto
 import ../activity_center/service as activity_center_service
 import ../message/service as message_service
 import ../chat/service as chat_service
+import ../wallet_account/service as wallet_account_service
+import ../collectible/service as collectible_service
 
 import ../../../app/global/global_singleton
 import ../../../app/core/signals/types
@@ -13,6 +15,7 @@ import ../../../app/core/eventemitter
 import ../../../app/core/[main]
 import ../../../app/core/tasks/[qt, threadpool]
 import ../../../backend/communities as status_go
+import ../../common/types as common_types
 
 include ./async_tasks
 
@@ -177,6 +180,8 @@ QtObject:
       chatService: chat_service.Service
       activityCenterService: activity_center_service.Service
       messageService: message_service.Service
+      walletAccountService: wallet_account_service.Service
+      collectibleService: collectible_service.Service
       communityTags: string # JSON string contraining tags map
       communities: Table[string, CommunityDto] # [community_id, CommunityDto]
       myCommunityRequests*: seq[CommunityMembershipRequestDto]
@@ -193,6 +198,7 @@ QtObject:
   proc getPendingRequestIndex(self: Service, communityId: string, requestId: string): int
   proc removeMembershipRequestFromCommunityAndGetMemberPubkey*(self: Service, communityId: string, requestId: string, updatedCommunity: CommunityDto): string
   proc getUserPubKeyFromPendingRequest*(self: Service, communityId: string, requestId: string): string
+  proc getCommunityPermissionType*(self: Service, communityId: string): common_types.PermissionType
 
   proc delete*(self: Service) =
     discard
@@ -202,7 +208,9 @@ QtObject:
       threadpool: ThreadPool,
       chatService: chat_service.Service,
       activityCenterService: activity_center_service.Service,
-      messageService: message_service.Service
+      messageService: message_service.Service,
+      walletAccountService: wallet_account_service.Service,
+      collectibleService: collectible_service.Service
       ): Service =
     result = Service()
     result.QObject.setup
@@ -211,6 +219,8 @@ QtObject:
     result.chatService = chatService
     result.activityCenterService = activityCenterService
     result.messageService = messageService
+    result.walletAccountService = walletAccountService
+    result.collectibleService = collectibleService
     result.communityTags = newString(0)
     result.communities = initTable[string, CommunityDto]()
     result.myCommunityRequests = @[]
@@ -629,7 +639,8 @@ QtObject:
       let communities = parseCommunities(responseObj["communities"])
       for community in communities:
         self.communities[community.id] = community
-        if (community.admin):
+        
+        if community.owner or self.getCommunityPermissionType(community.id) == common_types.PermissionType.Admin:
           self.communities[community.id].pendingRequestsToJoin = self.pendingRequestsToJoinForCommunity(community.id)
           self.communities[community.id].declinedRequestsToJoin = self.declinedRequestsToJoinForCommunity(community.id)
           self.communities[community.id].canceledRequestsToJoin = self.canceledRequestsToJoinForCommunity(community.id)
@@ -1366,6 +1377,7 @@ QtObject:
   proc onAsyncAcceptRequestToJoinCommunityDone*(self: Service, response: string) {.slot.} =
     try:
       let rpcResponseObj = response.parseJson
+      warn "---onAsyncAcceptRequestToJoinCommunityDone-----", response=rpcResponseObj
       let communityId = rpcResponseObj{"communityId"}.getStr
       let requestId = rpcResponseObj{"requestId"}.getStr
       let userKey = self.getUserPubKeyFromPendingRequest(communityId, requestId)
@@ -1728,3 +1740,39 @@ QtObject:
 
     let community = self.communities[communityId]
     return community.pendingRequestsToJoin[indexPending].publicKey
+
+  proc getCommunityPermissionType*(self: Service, communityId: string): common_types.PermissionType =
+    let community = self.communities[communityId]
+    
+    if community.owner:
+      return common_types.PermissionType.Owner
+
+    let adminPermissions = filter(values(community.tokenPermissions).toSeq(), tokenPermission => 
+      tokenPermission.`type` == TokenPermissionType.BecomeAdmin)
+
+    if adminPermissions.len == 0: 
+      return common_types.PermissionType.Member
+      
+    for tokenPermission in adminPermissions:
+      for tc in tokenPermission.tokenCriteria:
+        var tokenCriteriaMet = false
+        
+        if tc.`type` == TokenType.ERC20:
+          let amount = tc.amount.parseFloat
+          let balance = self.walletAccountService.allAccountsTokenBalance(tc.symbol)
+          tokenCriteriaMet = balance >= amount
+        elif tc.`type` == TokenType.ERC721:
+          for chainId, contractAddress in tc.contractAddresses:
+            let addresses = self.walletAccountService.getWalletAccounts().filter(a => 
+              a.walletType != WalletTypeWatch).map(a => a.address)
+
+            for address in addresses:
+              let data = self.collectibleService.getOwnedCollectibles(chainId, address)
+              for collectible in data.collectibles:
+                if collectible.id.contractAddress == contractAddress.toLowerAscii:
+                  tokenCriteriaMet = true
+        
+        if not tokenCriteriaMet:
+          return common_types.PermissionType.Member      
+                
+    return common_types.PermissionType.Admin
