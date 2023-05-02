@@ -19,6 +19,7 @@ import object
 import squish
 import toplevelwindow
 from objectmaphelper import Wildcard
+import objectMap
 
 from .elements import *  # noqa
 
@@ -503,9 +504,13 @@ def sleep_test(seconds: float):
     squish.snooze(seconds)
 
 
-def wait_for(py_condition_to_check: str, timeout_msec: int = 500) -> bool:
+def wait_for(py_condition_to_check: str, timeout_msec: int = 5000) -> bool:
     return squish.waitFor(lambda: py_condition_to_check, timeout_msec)
 
 
 def wait_until_hidden(object_name: str, timeout_msec: int = _MAX_WAIT_OBJ_TIMEOUT) -> bool:
     return squish.waitFor(lambda: not is_displayed(object_name), timeout_msec)
+
+
+def get_real_name(obj):
+    return objectMap.realName(obj)

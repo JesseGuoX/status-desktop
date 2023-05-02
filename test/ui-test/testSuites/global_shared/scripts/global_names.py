@@ -1,3 +1,4 @@
+from objectmaphelper import *
 
 statusDesktop_mainWindow = {"name": "mainWindow", "type": "StatusWindow", "visible": True}
 statusDesktop_mainWindow_overlay = {"container": statusDesktop_mainWindow, "type": "Overlay", "unnamed": 1, "visible": True}
@@ -18,7 +19,7 @@ viewProfile_MenuItem = {"container": statusDesktop_mainWindow_overlay, "objectNa
 mainWindow_ContactsColumn_Messages_Headline = {"container": statusDesktop_mainWindow, "objectName": "ContactsColumnView_MessagesHeadline", "type": "StatusNavigationPanelHeadline"}
 
 # main right panel
-mainWindow_RighPanel= {"container": statusDesktop_mainWindow, "type": "ColumnLayout", "objectName": "mainRightView", "visible": True}
+mainWindow_RighPanel = {"container": statusDesktop_mainWindow, "type": "ColumnLayout", "objectName": "mainRightView", "visible": True}
 
 # Navigation Panel
 mainWindow_StatusAppNavBar = {"container": statusDesktop_mainWindow, "type": "StatusAppNavBar", "unnamed": 1, "visible": True}
@@ -68,3 +69,10 @@ ProfilePopup_SendContactRequestButton = {"container": statusDesktop_mainWindow_o
 
 # Banners
 mainWindow_secureYourSeedPhraseBanner_ModuleWarning = {"container": statusDesktop_mainWindow, "objectName": "secureYourSeedPhraseBanner", "type": "ModuleWarning", "visible": True}
+
+# Context Menu
+contextMenu_PopupItem = {"container": statusDesktop_mainWindow_overlay, "type": "PopupItem", "unnamed": 1, "visible": True}
+contextMenuItem = {"container": statusDesktop_mainWindow_overlay, "type": "StatusBaseText", "unnamed": 1, "visible": True}
+
+# Confirmation Popup
+confirmButton = {"container": statusDesktop_mainWindow_overlay, "objectName": RegularExpression("confirm*"), "type": "StatusButton"}

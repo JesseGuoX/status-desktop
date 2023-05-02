@@ -11,18 +11,18 @@ class BaseElement:
 
     def __init__(self, object_name):
         self.symbolic_name = object_name
-        self.object_name = getattr(names, object_name)
+        self.object_name = getattr(names, object_name, object_name)
     
     def __str__(self): 
         return f'{type(self).__qualname__}({self.symbolic_name})' 
 
     @property
     def object(self):
-        return squish.waitForObject(self.object_name)
+        return squish.waitForObject(self.object_name, configs.squish.UI_LOAD_TIMEOUT_MSEC)
     
     @property
     def existent(self):
-        return squish.waitForObjectExists(self.object_name)
+        return squish.waitForObjectExists(self.object_name, configs.squish.UI_LOAD_TIMEOUT_MSEC)
 
     @property
     def bounds(self) -> squish.UiTypes.ScreenRectangle:
@@ -50,10 +50,6 @@ class BaseElement:
             return squish.waitForObject(self.object_name, 0).visible
         except (AttributeError, LookupError, RuntimeError):
             return False
-    
-    @property
-    def image(self) -> squish.Image:
-        return object.grabScreenshot(self.object)
 
     def click(
             self,
@@ -65,39 +61,27 @@ class BaseElement:
             self.object,
             x or self.width // 2,
             y or self.height // 2,
-            button or squish.MouseButton.LeftButton
+            button or squish.Qt.LeftButton
         )
 
-    def wait_until_appears(self, timeout_msec: int = configs.squish.UI_LOAD_TIMEOUT_MSEC):
+    def hover(self):
+        squish.mouseMove(self.center.x, self.center.y)
+
+    def open_context_menu(
+            self,
+            x: typing.Union[int, squish.UiTypes.ScreenPoint] = None,
+            y: typing.Union[int, squish.UiTypes.ScreenPoint] = None,
+    ):
+        self.click(
+            x or self.width // 2,
+            y or self.height // 2,
+            squish.Qt.RightButton
+        )
+
+
+    def wait_until_appears(self, timeout_msec: int=configs.squish.UI_LOAD_TIMEOUT_MSEC):
         assert squish.waitFor(lambda: self.is_visible, timeout_msec), f'Object {self} is not visible'
         return self
 
-    def wait_until_hidden(self, timeout_msec: int = configs.squish.UI_LOAD_TIMEOUT_MSEC):
+    def wait_until_hidden(self, timeout_msec: int=configs.squish.UI_LOAD_TIMEOUT_MSEC):
         squish.waitFor(lambda: not self.is_visible, timeout_msec), f'Object {self} is not hidden'
-
-    def wait_for_image(
-            self,
-            fp: str,
-            tolerant: bool = True,
-            threshold: int = 99.5,
-            min_scale: int = 50,
-            max_scale: int = 200,
-            multiscale: bool = True,
-            timeout_msec: int = squish.testSettings.waitForObjectTimeout
-    ) -> squish.UiTypes.ScreenRectangle:
-        try:
-            squish.waitForImage(
-                fp,
-                {
-                    'tolerant': tolerant,
-                    'threshold': threshold,
-                    'minScale': min_scale,
-                    'maxScale': max_scale,
-                    'multiscale': multiscale,
-                    'timeout': timeout_msec
-                },
-                self.object
-            )
-        except LookupError as err:
-            test.attachImage(squish.Image.load(fp), f'Image not found in/not equals to')
-            raise err

@@ -34,9 +34,9 @@ def step(context):
 @verify_screenshot
 def step(context, address, name, color, emoji, via_right_click_menu):
     if via_right_click_menu == VALUE_YES:
-        _walletScreen.click_option_from_left_part_right_click_menu(MainWalletRightClickMenu.ADD_WATCH_ONLY_ACCOUNT_ACTION_PLACEHOLDER.value)
+        _walletScreen.left_panel.open_context_menu().select_add_watch_anly_account()
     else:
-        _walletScreen.open_add_account_popup()
+        _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_change_account_name(name)
     _walletScreen.add_account_popup_change_account_color(color)
     _walletScreen.add_account_popup_change_account_emoji(emoji)
@@ -47,9 +47,9 @@ def step(context, address, name, color, emoji, via_right_click_menu):
 @verify_screenshot
 def step(context, name, color, emoji, via_right_click_menu, password):
     if via_right_click_menu == VALUE_YES:
-        _walletScreen.click_option_from_left_part_right_click_menu(MainWalletRightClickMenu.ADD_NEW_ACCOUNT_ACTION_PLACEHOLDER.value)
+        _walletScreen.left_panel.open_context_menu().select_add_account()
     else:
-        _walletScreen.open_add_account_popup()
+        _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_change_account_name(name)
     _walletScreen.add_account_popup_change_account_color(color)
     _walletScreen.add_account_popup_change_account_emoji(emoji)
@@ -58,7 +58,7 @@ def step(context, name, color, emoji, via_right_click_menu, password):
 @When("the user adds to \"|any|\" a custom generated account with \"|any|\" color \"|any|\" and emoji \"|any|\" using password \"|any|\" and setting custom path index \"|any|\" or selecting address with \"|any|\" using \"|any|\"")
 @verify_screenshot
 def step(context, keypair_name, name, color, emoji, password, index, order, is_ethereum_root):
-    _walletScreen.open_add_account_popup()
+    _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_change_account_name(name)
     _walletScreen.add_account_popup_change_account_color(color)
     _walletScreen.add_account_popup_change_account_emoji(emoji)
@@ -71,7 +71,7 @@ def step(context, keypair_name, name, color, emoji, password, index, order, is_e
 @When("the user adds a private key account \"|any|\" with \"|any|\" color \"|any|\" and emoji \"|any|\" using password \"|any|\" making keypair with name \"|any|\"")
 @verify_screenshot
 def step(context, private_key, name, color, emoji, password, keypair_name):
-    _walletScreen.open_add_account_popup()
+    _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_change_account_name(name)
     _walletScreen.add_account_popup_change_account_color(color)
     _walletScreen.add_account_popup_change_account_emoji(emoji)
@@ -81,7 +81,7 @@ def step(context, private_key, name, color, emoji, password, keypair_name):
 @When("the user adds an imported seed phrase account \"|any|\" with \"|any|\" color \"|any|\" and emoji \"|any|\" using password \"|any|\" making keypair with name \"|any|\"")
 @verify_screenshot
 def step(context, seed_phrase, name, color, emoji, password, keypair_name):
-    _walletScreen.open_add_account_popup()
+    _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_change_account_name(name)
     _walletScreen.add_account_popup_change_account_color(color)
     _walletScreen.add_account_popup_change_account_emoji(emoji)
@@ -91,7 +91,7 @@ def step(context, seed_phrase, name, color, emoji, password, keypair_name):
 @When("the user adds a generated seed phrase account with \"|any|\" color \"|any|\" and emoji \"|any|\" using password \"|any|\" making keypair with name \"|any|\"")
 @verify_screenshot
 def step(context, name, color, emoji, password, keypair_name):
-    _walletScreen.open_add_account_popup()
+    _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_change_account_name(name)
     _walletScreen.add_account_popup_change_account_color(color)
     _walletScreen.add_account_popup_change_account_emoji(emoji)
@@ -100,12 +100,12 @@ def step(context, name, color, emoji, password, keypair_name):
 
 @When("the user adds new master key and go to use a Keycard")
 def step(context):
-    _walletScreen.open_add_account_popup()
+    _walletScreen.left_panel.open_add_account_popup()
     _walletScreen.add_account_popup_go_to_keycard_settings()
 
 @When("the user edits an account with \"|any|\" to \"|any|\" with color \"|any|\" and emoji \"|any|\"")
 def step(context, name, new_name, new_color, new_emoji):
-    _walletScreen.click_option_from_right_click_menu_of_account_with_name(MainWalletRightClickMenu.EDIT_ACCOUNT_ACTION_PLACEHOLDER.value, name)
+    _walletScreen.left_panel.open_context_menu_for(name).select_edit_account()
     _walletScreen.add_account_popup_change_account_name(new_name)
     _walletScreen.add_account_popup_change_account_color(new_color)
     _walletScreen.add_account_popup_change_account_emoji(new_emoji)

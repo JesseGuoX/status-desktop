@@ -1,14 +1,34 @@
+from objectmaphelper import *
 from scripts.global_names import *
+from scripts.settings_names import *
+
 
 # Main:
+mainWindow_WalletLayout = {"container": statusDesktop_mainWindow, "type": "WalletLayout", "unnamed": 1, "visible": True}
+mainWallet_LeftTab = {"container": statusDesktop_mainWindow, "objectName": "walletLeftTab", "type": "LeftTabView", "visible": True}
+mainWallet_Saved_Addresses_Button = {"container": mainWindow_RighPanel, "objectName": "savedAddressesBtn", "type": "StatusButton"}
+walletAccounts_StatusListView = {"container": statusDesktop_mainWindow, "objectName": "walletAccountsListView", "type": "StatusListView", "visible": True}
+walletAccounts_WalletAccountItem_Placeholder = {"container": walletAccounts_StatusListView, "objectName": "walletAccount-%NAME%", "type": "StatusListItem", "visible": True}
+walletAccount_StatusListItem = {"container": walletAccounts_StatusListView, "objectName": RegularExpression("walletAccount*"), "type": "StatusListItem", "visible": True}
+
+# Saved Address View
+mainWindow_SavedAddressesView = {"container": mainWindow_WalletLayout, "type": "SavedAddressesView", "unnamed": 1, "visible": True}
+mainWallet_Saved_Addreses_Add_Buttton = {"container": mainWindow_SavedAddressesView, "objectName": "addNewAddressBtn", "type": "StatusButton"}
+mainWallet_Saved_Addreses_List = {"container": mainWindow_SavedAddressesView, "objectName": "SavedAddressesView_savedAddresses", "type": "StatusListView"}
+savedAddressView_Delegate = {"container": mainWallet_Saved_Addreses_List, "objectName": RegularExpression("savedAddressView_Delegate*"), "type": "SavedAddressesDelegate", "visible": True}
+send_StatusRoundButton = {"container": "", "type": "StatusRoundButton", "unnamed": 1, "visible": True}
+savedAddressView_Delegate_menuButton = {"container": "", "objectName": RegularExpression("savedAddressView_Delegate_menuButton*"), "type": "StatusRoundButton", "visible": True}
+
+# Wallet Account View
+mainWindow_StatusSectionLayout_ContentItem = {"container": statusDesktop_mainWindow, "objectName": "StatusSectionLayout", "type": "ContentItem", "visible": True}
+mainWallet_Account_Name = {"container": mainWindow_StatusSectionLayout_ContentItem, "objectName": "accountName", "type": "StatusBaseText", "visible": True}
+
 navBarListView_Wallet_navbar_StatusNavBarTabButton = {"checkable": True, "container": mainWindow_navBarListView_ListView, "objectName": "Wallet-navbar", "type": "StatusNavBarTabButton", "visible": True}
 wallet_navbar_wallet_icon_StatusIcon = {"container": navBarListView_Wallet_navbar_StatusNavBarTabButton, "objectName": "wallet-icon", "type": "StatusIcon", "visible": True}
-mainWallet_LeftTab = {"container": statusDesktop_mainWindow, "objectName": "walletLeftTab", "type": "LeftTabView", "visible": True}
-mainWallet_Account_Name = {"container": statusDesktop_mainWindow, "objectName": "accountName", "type": "StatusBaseText", "visible": True}
+
 mainWallet_Address_Panel = {"container": statusDesktop_mainWindow, "objectName": "addressPanel", "type": "StatusAddressPanel", "visible": True}
 mainWallet_Add_Account_Button = {"container": statusDesktop_mainWindow, "objectName": "addAccountButton", "type": "StatusRoundButton", "visible": True}
 signPhrase_Ok_Button = {"container": statusDesktop_mainWindow, "type": "StatusFlatButton", "objectName": "signPhraseModalOkButton", "visible": True}
-mainWallet_Saved_Addresses_Button = {"container": statusDesktop_mainWindow, "objectName": "savedAddressesBtn", "type": "StatusButton"}
 mainWallet_Network_Selector_Button = {"container": statusDesktop_mainWindow, "objectName": "networkSelectorButton", "type": "StatusListItem"}
 mainWallet_Right_Side_Tab_Bar = {"container": statusDesktop_mainWindow, "objectName": "rightSideWalletTabBar", "type": "StatusTabBar"}
 mainWallet_Ephemeral_Notification_List = {"container": statusDesktop_mainWindow, "objectName": "ephemeralNotificationList", "type": "StatusListView"}
@@ -18,9 +38,6 @@ mainWallet_RightClick_EditAccount_MenuItem_Placeholder = {"container": statusDes
 mainWallet_RightClick_DeleteAccount_MenuItem_Placeholder = {"container": statusDesktop_mainWindow, "enabled": True, "objectName": "AccountMenu-DeleteAction-%NAME%", "type": "StatusMenuItem"}
 mainWallet_RightClick_AddNewAccount_MenuItem_Placeholder = {"container": statusDesktop_mainWindow, "enabled": True, "objectName": "AccountMenu-AddNewAccountAction-%NAME%", "type": "StatusMenuItem"}
 mainWallet_RightClick_AddWatchOnlyAccount_MenuItem_Placeholder = {"container": statusDesktop_mainWindow, "enabled": True, "objectName": "AccountMenu-AddWatchOnlyAccountAction-%NAME%", "type": "StatusMenuItem"}
-
-walletAccounts_StatusListView = {"container": statusDesktop_mainWindow, "objectName": "walletAccountsListView", "type": "StatusListView", "visible": True}
-walletAccounts_WalletAccountItem_Placeholder = {"container": walletAccounts_StatusListView, "objectName": "walletAccount-%NAME%", "type": "StatusListItem", "visible": True}
 
 # Assets view:
 mainWallet_Assets_View_List = {"container": statusDesktop_mainWindow, "objectName": "assetViewStatusListView", "type": "StatusListView"}
@@ -125,13 +142,6 @@ mainWallet_Remove_Account_Popup_Account_Path = {"container": mainWallet_Remove_A
 mainWallet_Remove_Account_Popup_HavePenPaperCheckBox = {"checkable": True, "container": statusDesktop_mainWindow, "objectName": "RemoveAccountPopup-HavePenPaper", "type": "StatusCheckBox", "visible": True}
 mainWallet_Remove_Account_Popup_ConfirmButton = {"container": statusDesktop_mainWindow, "objectName": "RemoveAccountPopup-ConfirmButton", "type": "StatusButton", "visible": True}
 mainWallet_Remove_Account_Popup_CancelButton = {"container": statusDesktop_mainWindow, "objectName": "RemoveAccountPopup-CancelButton", "type": "StatusFlatButton", "visible": True}
-
-# saved address view
-mainWallet_Saved_Addreses_Add_Buttton = {"container": statusDesktop_mainWindow, "objectName": "addNewAddressBtn", "type": "StatusButton"}
-mainWallet_Saved_Addreses_List = {"container": statusDesktop_mainWindow, "objectName": "SavedAddressesView_savedAddresses", "type": "StatusListView"}
-mainWallet_Saved_Addreses_More_Edit = {"container": statusDesktop_mainWindow, "objectName": "editroot", "type": "StatusMenuItem"}
-mainWallet_Saved_Addreses_More_Delete = {"container": statusDesktop_mainWindow, "objectName": "deleteSavedAddress", "type": "StatusMenuItem"}
-mainWallet_Saved_Addreses_More_Confirm_Delete = {"container": statusDesktop_mainWindow, "objectName": "confirmDeleteSavedAddress", "type": "StatusButton"}
 
 # saved address add popup
 mainWallet_Saved_Addreses_Popup_Name_Input = {"container": statusDesktop_mainWindow, "objectName": "savedAddressNameInput", "type": "TextEdit"}

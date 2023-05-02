@@ -1,24 +1,164 @@
+import time
 from ast import Tuple
 from enum import Enum
-import time
-import os
-import sys
+from objectmaphelper import *
+import configs
+import constants
 import common.Common as common
 from common.SeedUtils import *
-from .StatusMainScreen import StatusMainScreen
-from .StatusMainScreen import authenticate_popup_enter_password
+from drivers import *
+
 from .SettingsScreen import SidebarComponents
-from drivers.SquishDriver import type_text as type_text
+from .StatusMainScreen import authenticate_popup_enter_password
+from .components.context_menu import ContextMenu
+from .components.saved_address_popup import AddSavedAddressPopup, EditSavedAddressPopup
+from .components.confirmation_popup import ConfirmationPopup
 
 NOT_APPLICABLE = "N/A"
 VALUE_YES = "yes"
 VALUE_NO = "no"
 
+
+class MainWalletContextMenu(ContextMenu):
+
+    def select(self, name: str):
+        self._menu_item.object_name['objectName'] = name
+        self._menu_item.click()
+        self.wait_until_hidden()
+
+    def select_copy_address(self):
+        self.select(RegularExpression("AccountMenu-CopyAddressAction*"))
+
+    def select_edit_account(self):
+        self.select(RegularExpression("AccountMenu-EditAction*"))
+
+    def select_add_new_account(self):
+        self.select(RegularExpression("AccountMenu-AddNewAccountAction*"))
+
+    def select_add_watch_anly_account(self):
+        self.select(RegularExpression("AccountMenu-AddWatchOnlyAccountAction*"))
+
+
+class LeftPanel(BaseElement):
+
+    def __init__(self):
+        super(LeftPanel, self).__init__('mainWallet_LeftTab')
+        self._saved_addresses_button = BaseElement('mainWallet_Saved_Addresses_Button')
+        self._wallet_account_item = BaseElement('walletAccount_StatusListItem')
+        self._add_account_button = Button('mainWallet_Add_Account_Button')
+    
+    def open_saved_addresses(self) -> 'AddressesView':
+        self._saved_addresses_button.click()
+        return AddressesView().wait_until_appears()
+
+    def select_account(self, account_name: str) -> 'WalletAccountView':
+        self._wallet_account_item.object_name['title'] = account_name
+        self._wallet_account_item.click()
+        return WalletAccountView().wait_until_appears()
+
+    def open_context_menu_for_account(self, account_name: str) -> MainWalletContextMenu:
+        self._wallet_account_item.object_name['title'] = account_name
+        self._wallet_account_item.open_context_menu()
+        return MainWalletContextMenu().wait_until_appears()
+
+    def open_context_menu(self) -> MainWalletContextMenu:
+        super(LeftPanel, self).open_context_menu()
+        return MainWalletContextMenu().wait_until_appears()
+
+    def open_add_account_popup(self):
+        self._add_account_button.click()
+
+
+class SavedAddressListItem(BaseElement):
+
+    def __init__(self, object_name: str):
+        super(SavedAddressListItem, self).__init__(object_name)
+        self._send_button = Button('send_StatusRoundButton')
+        self._open_menu_button = Button('savedAddressView_Delegate_menuButton')
+
+    @property
+    def name(self) -> str:
+        return self.object.name
+
+    @property
+    def address(self) -> str:
+        return self.object.address
+
+    def open_send_popup(self):
+        self._send_button.object_name['container'] = self.object_name
+        self._send_button.click()
+        # TODO: return popup)
+
+    def open_context_menu(self) -> ContextMenu:
+        self._open_menu_button.object_name['container'] = self.object_name
+        self._open_menu_button.click()
+        return ContextMenu().wait_until_appears()
+
+
+class AddressesView(BaseElement):
+
+    def __init__(self):
+        super(AddressesView, self).__init__('mainWindow_SavedAddressesView')
+        self._add_new_address_button = Button('mainWallet_Saved_Addreses_Add_Buttton')
+        self._address_list_item = BaseElement('savedAddressView_Delegate')
+
+    @property
+    def saved_addresses(self):
+        items = get_objects(self._address_list_item.symbolic_name)
+        addresses = [SavedAddressListItem(get_real_name(item)) for item in items]
+        return addresses
+    
+    @property
+    def address_names(self):
+        names = [address.name for address in get_objects(self._address_list_item.symbolic_name)]
+        return names
+
+    def _get_saved_address_by_name(self, name):
+        for address in self.saved_addresses:
+            if address.name == name:
+                return address
+        raise LookupError(f'Address: {name} not found ')
+
+    def open_add_address_popup(self, attempt=2) -> 'AddSavedAddressPopup':
+        self._add_new_address_button.click()
+        try:
+            return AddSavedAddressPopup().wait_until_appears()
+        except AssertionError as err:
+            if attempt:
+                self.open_add_address_popup(attempt-1)
+            else:
+                raise err
+
+    def open_edit_address_popup(self, address_name: str) -> 'EditSavedAddressPopup':
+        address = self._get_saved_address_by_name(address_name)
+        address.open_context_menu().select('Edit')
+        return EditSavedAddressPopup().wait_until_appears()
+
+    def delete_saved_address(self, address_name):
+        address = self._get_saved_address_by_name(address_name)
+        address.open_context_menu().select('Delete')
+        ConfirmationPopup().wait_until_appears().confirm()
+
+
+class WalletAccountView(BaseElement):
+
+    def __init__(self):
+        super(WalletAccountView, self).__init__('mainWindow_StatusSectionLayout_ContentItem')
+        self._account_name_text_label = TextLabel('mainWallet_Account_Name')
+
+    def wait_until_appears(self, timeout_msec: int = configs.squish.UI_LOAD_TIMEOUT_MSEC):
+        self._account_name_text_label.wait_until_appears()
+        return self
+
+
+
 class Tokens(Enum):
     ETH: str = "ETH"
 
+
 class SigningPhrasePopUp(Enum):
     OK_GOT_IT_BUTTON: str = "signPhrase_Ok_Button"
+
 
 class MainWalletScreen(Enum):
     WALLET_LEFT_TAB: str = "mainWallet_LeftTab"
@@ -26,14 +166,14 @@ class MainWalletScreen(Enum):
     ACCOUNT_NAME: str = "mainWallet_Account_Name"
     ACCOUNT_ADDRESS_PANEL: str = "mainWallet_Address_Panel"
     SEND_BUTTON_FOOTER: str = "mainWallet_Footer_Send_Button"
-    SAVED_ADDRESSES_BUTTON: str = "mainWallet_Saved_Addresses_Button"
     NETWORK_SELECTOR_BUTTON: str = "mainWallet_Network_Selector_Button"
     RIGHT_SIDE_TABBAR: str = "mainWallet_Right_Side_Tab_Bar"
     WALLET_ACCOUNTS_LIST: str = "walletAccounts_StatusListView"
     WALLET_ACCOUNT_ITEM_PLACEHOLDER = "walletAccounts_WalletAccountItem_Placeholder"
     EPHEMERAL_NOTIFICATION_LIST: str = "mainWallet_Ephemeral_Notification_List"
     TOTAL_CURRENCY_BALANCE: str = "mainWallet_totalCurrencyBalance"
-    
+
+
 class MainWalletRightClickMenu(Enum):
     COPY_ADDRESS_ACTION_PLACEHOLDER: str = "mainWallet_RightClick_CopyAddress_MenuItem_Placeholder"
     EDIT_ACCOUNT_ACTION_PLACEHOLDER: str = "mainWallet_RightClick_EditAccount_MenuItem_Placeholder"
@@ -41,26 +181,14 @@ class MainWalletRightClickMenu(Enum):
     ADD_NEW_ACCOUNT_ACTION_PLACEHOLDER: str = "mainWallet_RightClick_AddNewAccount_MenuItem_Placeholder"
     ADD_WATCH_ONLY_ACCOUNT_ACTION_PLACEHOLDER: str = "mainWallet_RightClick_AddWatchOnlyAccount_MenuItem_Placeholder"
 
+
 class AssetView(Enum):
     LIST: str = "mainWallet_Assets_View_List"
+
 
 class NetworkSelectorPopup(Enum):
     LAYER_1_REPEATER: str = "mainWallet_Network_Popup_Chain_Repeater_1"
 
-class SavedAddressesScreen(Enum):
-    ADD_BUTTON: str = "mainWallet_Saved_Addreses_Add_Buttton"
-    SAVED_ADDRESSES_LIST: str = "mainWallet_Saved_Addreses_List"
-    EDIT: str = "mainWallet_Saved_Addreses_More_Edit"
-    DELETE: str = "mainWallet_Saved_Addreses_More_Delete"
-    CONFIRM_DELETE: str = "mainWallet_Saved_Addreses_More_Confirm_Delete"
-    DELEGATE_MENU_BUTTON_OBJECT_NAME: str = "savedAddressView_Delegate_menuButton"
-    DELEGATE_FAVOURITE_BUTTON_OBJECT_NAME: str = "savedAddressView_Delegate_favouriteButton"
-
-class AddSavedAddressPopup(Enum):
-    NAME_INPUT: str = "mainWallet_Saved_Addreses_Popup_Name_Input"
-    ADDRESS_INPUT: str = "mainWallet_Saved_Addreses_Popup_Address_Input"
-    ADDRESS_INPUT_EDIT: str = "mainWallet_Saved_Addreses_Popup_Address_Input_Edit"
-    ADD_BUTTON: str = "mainWallet_Saved_Addreses_Popup_Address_Add_Button"
 
 class SendPopup(Enum):
     SCROLL_BAR: str = "mainWallet_Send_Popup_Main"
@@ -73,6 +201,7 @@ class SendPopup(Enum):
     ASSET_SELECTOR: str = "mainWallet_Send_Popup_Asset_Selector"
     ASSET_LIST: str = "mainWallet_Send_Popup_Asset_List"
     HIGH_GAS_BUTTON: str = "mainWallet_Send_Popup_GasSelector_HighGas_Button"
+
 
 class AddEditAccountPopup(Enum):
     CONTENT = "mainWallet_AddEditAccountPopup_Content"
@@ -118,6 +247,7 @@ class AddEditAccountPopup(Enum):
     ENTER_SEED_PHRASE_WORD_COMPONENT = "mainWallet_AddEditAccountPopup_EnterSeedPhraseWordComponent"
     ENTER_SEED_PHRASE_WORD = "mainWallet_AddEditAccountPopup_EnterSeedPhraseWord"
 
+
 class RemoveAccountPopup(Enum):
     ACCOUNT_NOTIFICATION = "mainWallet_Remove_Account_Popup_Account_Notification"
     ACCOUNT_PATH = "mainWallet_Remove_Account_Popup_Account_Path"
@@ -125,24 +255,32 @@ class RemoveAccountPopup(Enum):
     CONFIRM_BUTTON = "mainWallet_Remove_Account_Popup_ConfirmButton"
     CANCEL_BUTTON = "mainWallet_Remove_Account_Popup_CancelButton"
 
+
 class CollectiblesView(Enum):
-    COLLECTIONS_REPEATER: str =  "mainWallet_Collections_Repeater"
-    COLLECTIBLES_REPEATER: str =  "mainWallet_Collectibles_Repeater"
+    COLLECTIONS_REPEATER: str = "mainWallet_Collections_Repeater"
+    COLLECTIBLES_REPEATER: str = "mainWallet_Collectibles_Repeater"
+
 
 class WalletTabBar(Enum):
-    ASSET_TAB =  0
-    COLLECTION_TAB =  1
+    ASSET_TAB = 0
+    COLLECTION_TAB = 1
     ACTIVITY_TAB = 2
+
 
 class TransactionsView(Enum):
     TRANSACTIONS_LISTVIEW: str =  "mainWallet_Transactions_List"
     TRANSACTIONS_DETAIL_VIEW_HEADER: str =  "mainWallet_Transactions_Detail_View_Header"
+
 
 class StatusWalletScreen:
 
     #####################################
     ### Screen actions region:
     #####################################
+    
+    def __init__(self):
+        super(StatusWalletScreen, self).__init__()
+        self.left_panel: LeftPanel = LeftPanel()
 
     def accept_signing_phrase(self):
         click_obj_by_name(SigningPhrasePopUp.OK_GOT_IT_BUTTON.value)
@@ -401,49 +539,13 @@ class StatusWalletScreen:
                 break
 
     def add_saved_address(self, name: str, address: str):
-        click_obj_by_name(MainWalletScreen.SAVED_ADDRESSES_BUTTON.value)
-        click_obj_by_name(SavedAddressesScreen.ADD_BUTTON.value)
-        type_text(AddSavedAddressPopup.NAME_INPUT.value, name)
-
-        type_text(AddSavedAddressPopup.ADDRESS_INPUT_EDIT.value, address)
-        addressInput = get_obj(AddSavedAddressPopup.ADDRESS_INPUT.value)
-        verify_equal(addressInput.plainText, address)
-        is_loaded_visible_and_enabled(AddSavedAddressPopup.ADD_BUTTON.value)
-        click_obj_by_name(AddSavedAddressPopup.ADD_BUTTON.value)
-
-    def _get_saved_address_delegate_item(self, name: str):
-        list = wait_and_get_obj(SavedAddressesScreen.SAVED_ADDRESSES_LIST.value)
-        found = -1
-        for index in range(list.count):
-            if list.itemAtIndex(index).objectName == f"savedAddressView_Delegate_{name}":
-                found = index
-
-        assert found != -1, "saved address not found"
-        return list.itemAtIndex(found)
-
-    def _find_saved_address_and_open_menu(self, name: str):
-        item = self._get_saved_address_delegate_item(name)
-        menuButton = get_child_item_with_object_name(item, f"{SavedAddressesScreen.DELEGATE_MENU_BUTTON_OBJECT_NAME.value}_{name}")
-        is_object_loaded_visible_and_enabled(menuButton)
-        click_obj(menuButton)
+        self.left_panel.open_saved_addresses().open_add_address_popup().add_saved_address(name, address)
 
     def edit_saved_address(self, name: str, new_name: str):
-        self._find_saved_address_and_open_menu(name)
-
-        click_obj_by_name(SavedAddressesScreen.EDIT.value)
-
-        # Delete existing text
-        type_text(AddSavedAddressPopup.NAME_INPUT.value, "<Ctrl+A>")
-        type_text(AddSavedAddressPopup.NAME_INPUT.value, "<Del>")
-
-        type_text(AddSavedAddressPopup.NAME_INPUT.value, new_name)
-        click_obj_by_name(AddSavedAddressPopup.ADD_BUTTON.value)
+        self.left_panel.open_saved_addresses().open_edit_address_popup(name).edit_saved_address(new_name)
 
     def delete_saved_address(self, name: str):
-        self._find_saved_address_and_open_menu(name)
-
-        click_obj_by_name(SavedAddressesScreen.DELETE.value)
-        click_obj_by_name(SavedAddressesScreen.CONFIRM_DELETE.value)
+        self.left_panel.open_saved_addresses().delete_saved_address(name)
 
     def toggle_favourite_for_saved_address(self, name: str):
         # Find the saved address and click favourite to toggle
@@ -474,15 +576,10 @@ class StatusWalletScreen:
         assert False, "network name not found"
 
     def click_default_wallet_account(self):
-        accounts = get_obj(MainWalletScreen.WALLET_ACCOUNTS_LIST.value)
-        click_obj(accounts.itemAtIndex(0))
+        self.left_panel.select_account(constants.wallet.DEFAULT_ACCOUNT_NAME)
 
     def click_wallet_account(self, account_name: str):
-        accounts = get_obj(MainWalletScreen.WALLET_ACCOUNTS_LIST.value)
-        for index in range(accounts.count):
-            if(accounts.itemAtIndex(index).objectName == "walletAccount-" + account_name):
-                click_obj(accounts.itemAtIndex(index))
-                return
+        self.left_panel.select_account(account_name)
 
 
     #####################################
@@ -552,24 +649,10 @@ class StatusWalletScreen:
         do_until_validation_with_timeout(lambda: time.sleep(0.1), lambda: self.verify_account_balance_is_positive(list, symbol)[0], "Symbol " + symbol + " not found in the asset list", 5000)
 
     def verify_saved_address_exists(self, name: str):
-        list = wait_and_get_obj(SavedAddressesScreen.SAVED_ADDRESSES_LIST.value)
-        for index in range(list.count):
-            if list.itemAtIndex(index).objectName == f"savedAddressView_Delegate_{name}":
-                return
-
-        verify_failure(f'FAIL: saved address {name} not found"')
+        assert wait_for(name in self.left_panel.open_saved_addresses().address_names), f'Address: {name} not found'
 
     def verify_saved_address_doesnt_exist(self, name: str):
-        # The list should be hidden when there are no saved addresses
-        try:
-            list = wait_and_get_obj(SavedAddressesScreen.SAVED_ADDRESSES_LIST.value, 250)
-        except LookupError:
-            return
-
-        list = wait_and_get_obj(SavedAddressesScreen.SAVED_ADDRESSES_LIST.value)
-        for index in range(list.count):
-            if list.itemAtIndex(index).objectName == f"savedAddressView_Delegate_{name}":
-                verify_failure(f'FAIL: saved address {name} exists')
+        assert wait_for(name not in self.left_panel.open_saved_addresses().address_names), f'Address: {name} found'
 
     def verify_transaction(self):
         pass

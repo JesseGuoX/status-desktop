@@ -1,3 +1,4 @@
+from objectmaphelper import *
 from scripts.global_names import *
 from enum import Enum
 
@@ -86,8 +87,11 @@ add_StatusButton = {"checkable": False, "container": statusDesktop_mainWindow_ov
 linksView = {"container": statusDesktop_mainWindow, "id": "linksView", "type": "StatusListView", "unnamed": 1, "visible": True}
 edit_TextEdit = {"container": statusDesktop_mainWindow_overlay, "id": "edit", "type": "TextEdit", "unnamed": 1, "visible": True}
 
-# Wallet Settings:
-settings_Wallet_MainView_GeneratedAccounts = {"container": statusDesktop_mainWindow, "objectName":'generatedAccounts', "type": 'ListView'}
+mainWallet_Saved_Addreses_More_Edit = {"container": statusDesktop_mainWindow, "objectName": "editroot", "type": "StatusMenuItem"}
+mainWallet_Saved_Addreses_More_Delete = {"container": statusDesktop_mainWindow, "objectName": "deleteSavedAddress", "type": "StatusMenuItem"}
+mainWallet_Saved_Addreses_More_Confirm_Delete = {"container": statusDesktop_mainWindow, "objectName": "confirmDeleteSavedAddress", "type": "StatusButton"}
+
+settings_Wallet_MainView_GeneratedAccounts = {"container": statusDesktop_mainWindow, "objectName": 'generatedAccounts', "type": 'ListView'}
 settings_Wallet_AccountView_DeleteAccount = {"container": statusDesktop_mainWindow, "type": "StatusButton", "objectName": "deleteAccountButton"}
 settings_Wallet_AccountView_DeleteAccount_Confirm = {"container": statusDesktop_mainWindow, "type": "StatusButton", "objectName": "confirmDeleteAccountButton"}
 mainWindow_ScrollView_2 = {"container": statusDesktop_mainWindow, "occurrence": 2, "type": "StatusScrollView", "unnamed": 1, "visible": True}
