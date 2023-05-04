@@ -10,8 +10,9 @@ import StatusQ.Core.Utils 0.1
 
 import utils 1.0
 
-import "../../../Wallet/controls"
+import "../../../Wallet/controls" // TODO: Proper import
 import shared.panels 1.0
+import shared.popups 1.0
 
 StatusScrollView {
     id: root
@@ -79,7 +80,32 @@ StatusScrollView {
             acceptedImageExtensions: Constants.acceptedDragNDropImageExtensions
             file: root.artworkSource
 
-            onFileSelected: root.artworkSource = file
+            onFileSelected: imageCropWorkflow.cropImage(file)
+        }
+
+//        StatusImageCrop {
+//            id: croppedPreview
+//            Layout.preferredHeight: d.imageSelectorRectWidth + headerHeight
+//            Layout.preferredWidth: d.imageSelectorRectWidth + buttonsInsideOffset
+
+//            visible: true
+//            windowStyle: imageCropWorkflow.windowStyle
+//            wallColor: Theme.palette.statusAppLayout.backgroundColor
+//            wallTransparency: 1
+//            clip: true
+//        }
+
+        ImageCropWorkflow {
+            id: imageCropWorkflow
+
+            roundedImage: false
+            title: qsTr("Artwork")
+            acceptButtonText: qsTr("Upload Artwork")
+
+            onImageCropped: {
+                root.artworkSource = image
+                //croppedPreview.setCropRect(cropRect)
+            }
         }
 
         CustomStatusInput {
@@ -281,10 +307,10 @@ StatusScrollView {
             multiSelection: false
 
             onToggleNetwork: (network) => {
-                root.chainId = network.chainId
-                root.chainName = network.chainName
-                root.chainIcon = network.iconUrl
-            }
+                                 root.chainId = network.chainId
+                                 root.chainName = network.chainName
+                                 root.chainIcon = network.iconUrl
+                             }
         }
     }
 }
