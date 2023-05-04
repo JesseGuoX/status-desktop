@@ -100,8 +100,7 @@ Control {
 
                 StatusComboBox {
                     id: combo
-
-                    Layout.preferredWidth: 70
+                    Layout.preferredWidth: 85
                     Layout.preferredHeight: 44
 
                     visible: root.isSelectorMode && amount > 1
@@ -111,6 +110,7 @@ Control {
                     type: StatusComboBox.Type.Secondary
                     delegate: StatusItemDelegate {
                         width: combo.control.width
+
                         centerTextHorizontally: true
                         highlighted: combo.control.highlightedIndex === index
                         font: combo.control.font
@@ -119,6 +119,7 @@ Control {
                     contentItem: StatusBaseText {
                         font: combo.control.font
                         verticalAlignment: Text.AlignVCenter
+                        horizontalAlignment: Text.AlignRight
                         elide: Text.ElideRight
                         text: Number(combo.control.displayText) + 1
                         color: Theme.palette.baseColor1
