@@ -631,7 +631,7 @@ proc addMigratedKeyPair*(self: Controller, keyPair: KeyPairDto) =
     return
   if not serviceApplicable(self.accountsService):
     return
-  self.walletAccountService.addMigratedKeyPairAsync(keyPair, self.getPassword())
+  self.walletAccountService.addMigratedKeyPairAsync(keyPair)
 
 proc removeMigratedAccountsForKeycard*(self: Controller, keyUid: string, keycardUid: string, accountsToRemove: seq[string]) =
   if not serviceApplicable(self.walletAccountService):

@@ -25,8 +25,8 @@ proc getAccountsByKeyUID*(keyUid: string): RpcResponse[JsonNode] {.raises: [Exce
   let payload = %* [keyUid]
   return core.callPrivateRPC("accounts_getAccountsByKeyUID", payload)
 
-proc deleteAccount*(address: string, password: string): RpcResponse[JsonNode] {.raises: [Exception].} =
-  let payload = %* [address, password]
+proc deleteAccount*(address: string): RpcResponse[JsonNode] {.raises: [Exception].} =
+  let payload = %* [address]
   return core.callPrivateRPC("accounts_deleteAccount", payload)
 
 ## Adds a new account and creates a Keystore file if password is provided, otherwise it only creates a new account. Notifies paired devices.
