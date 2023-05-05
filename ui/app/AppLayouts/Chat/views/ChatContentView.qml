@@ -55,50 +55,7 @@ ColumnLayout {
     property Component sendTransactionWithEnsModal
 
     property bool isBlocked: false
-    property int contactRequestState: Constants.ContactRequestState.None
     property bool stickersLoaded: false
-
-    onIsActiveChannelChanged: d.updateContactRequestState()
-
-    QtObject {
-        id: d
-
-        readonly property var conns1: Connections {
-            target: root.contactsStore.myContactsModel ?? null
-
-            function onItemChanged(pubKey) {
-                if (pubKey === root.chatId)
-                    d.updateContactRequestState()
-            }
-        }
-
-        readonly property var conns2: Connections {
-            target: root.contactsStore.receivedContactRequestsModel ?? null
-
-            function onItemChanged(pubKey) {
-                if (pubKey === root.chatId)
-                    d.updateContactRequestState()
-            }
-        }
-
-        readonly property var conns3: Connections {
-            target: root.contactsStore.sentContactRequestsModel ?? null
-
-            function onItemChanged(pubKey) {
-                if (pubKey === root.chatId)
-                    d.updateContactRequestState()
-            }
-        }
-
-        function updateContactRequestState() {
-            if (root.chatType !== Constants.chatType.oneToOne) {
-                return
-            }
-            root.contactRequestState = Utils.getContactDetailsAsJson(root.chatId).contactRequestState
-        }
-
-        Component.onCompleted: d.updateContactRequestState()
-    }
 
     Loader {
         Layout.fillWidth: true
@@ -125,7 +82,7 @@ ColumnLayout {
         sourceComponent: MessageContextMenuView {
             store: root.rootStore
             reactionModel: root.rootStore.emojiReactionsModel
-            disabledForChat: root.chatType === Constants.chatType.oneToOne && root.contactRequestState !== Constants.ContactRequestState.Mutual && !root.rootStore.isUserAllowedToSendMessage
+            disabledForChat: !root.rootStore.isUserAllowedToSendMessage
 
             onPinMessage: {
                 messageStore.pinMessage(messageId)
@@ -195,7 +152,6 @@ ColumnLayout {
                 stickersLoaded: root.stickersLoaded
                 publicKey: root.chatId
                 isOneToOne: root.chatType === Constants.chatType.oneToOne
-                contactRequestState: root.contactRequestState
                 isChatBlocked: root.isBlocked || !root.rootStore.isUserAllowedToSendMessage
                 channelEmoji: !chatContentModule ? "" : (chatContentModule.chatDetails.emoji || "")
                 isActiveChannel: root.isActiveChannel
@@ -249,7 +205,6 @@ ColumnLayout {
                     anchors.margins: Style.current.smallPadding
 
                     enabled: root.rootStore.sectionDetails.joined && !root.rootStore.sectionDetails.amIBanned &&
-                             !(chatType === Constants.chatType.oneToOne && root.contactRequestState !== Constants.ContactRequestState.Mutual) &&
                              root.rootStore.isUserAllowedToSendMessage
 
                     store: root.rootStore
